@@ -2,6 +2,7 @@
 
 namespace app\models;
 
+use Exception;
 use Yii;
 
 /**
@@ -14,11 +15,10 @@ use Yii;
  * @property int $moderator
  * @property string|null $avatar
  * @property string|null $date_add
- *
  * @property Comment[] $comments
  * @property Ticket[] $tickets
  */
-class User extends \yii\db\ActiveRecord
+class User extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
 {
     /**
      * {@inheritdoc}
@@ -41,6 +41,18 @@ class User extends \yii\db\ActiveRecord
             [['password'], 'string', 'max' => 64],
             [['email'], 'unique'],
         ];
+    }
+
+    /**
+     * @throws Exception
+     */
+    public function uploadAvatar($fileForSave): string
+    {
+        $fileName = uniqid('upload') . '.' . $fileForSave->getExtension();
+        if ($fileForSave->saveAs('@webroot/uploads/' . $fileName)) {
+            return $fileName;
+        }
+        throw new Exception('Ошибка сохранения');
     }
 
     /**
@@ -77,5 +89,30 @@ class User extends \yii\db\ActiveRecord
     public function getTickets()
     {
         return $this->hasMany(Ticket::class, ['user_id' => 'id']);
+    }
+
+    public static function findIdentity($id)
+    {
+        return self::findOne($id);
+    }
+
+    public static function findIdentityByAccessToken($token, $type = null)
+    {
+        // TODO: Implement findIdentityByAccessToken() method.
+    }
+
+    public function getId()
+    {
+        return $this->id;
+    }
+
+    public function getAuthKey()
+    {
+        return null;
+    }
+
+    public function validateAuthKey($authKey)
+    {
+        return null;
     }
 }
