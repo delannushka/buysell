@@ -4,6 +4,8 @@ namespace app\models;
 
 use Exception;
 use Yii;
+use yii\db\ActiveRecord;
+use yii\web\IdentityInterface;
 
 /**
  * This is the model class for table "user".
@@ -17,8 +19,9 @@ use Yii;
  * @property string|null $date_add
  * @property Comment[] $comments
  * @property Ticket[] $tickets
+ * @property Auth[] $auths
  */
-class User extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
+class User extends ActiveRecord implements IdentityInterface
 {
     /**
      * {@inheritdoc}
@@ -56,6 +59,16 @@ class User extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
     }
 
     /**
+     * Gets query for [[Auths]].
+     *
+     * @return \yii\db\ActiveQuery
+     */
+    public function getAuths()
+    {
+        return $this->hasMany(Auth::class, ['user_id' => 'id']);
+    }
+
+    /**
      * {@inheritdoc}
      */
     public function attributeLabels()
@@ -89,6 +102,17 @@ class User extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
     public function getTickets()
     {
         return $this->hasMany(Ticket::class, ['user_id' => 'id']);
+    }
+
+    /**
+     * @throws \yii\base\Exception
+     */
+    public function loadAuthUser($userVk): void
+    {
+        $this->email = $userVk['email'];
+        $this->name = $userVk['first_name'] . ' ' . $userVk['last_name'];
+        $this->avatar = $userVk['photo'];
+        $this->password = Yii::$app->security->generateRandomString(6);
     }
 
     public static function findIdentity($id)

@@ -52,6 +52,18 @@ $config = [
                 '<controller:\w+>/<action:\w+>' => '<controller>/<action>'
             ],
         ],
+        'authClientCollection' => [
+            'class' => 'yii\authclient\Collection',
+            'clients' => [
+                'vkontakte' => [
+                    'class' => 'yii\authclient\clients\VKontakte',
+                    'clientId' => '51500793',
+                    'clientSecret' => 'GvkPoFQqvuBV0xGk6Aye',
+                    'returnUrl' => 'http://buysell/login/vk',
+                    'scope' => 'email'
+                ],
+            ],
+        ]
     ],
     'params' => $params,
 ];

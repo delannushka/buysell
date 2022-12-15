@@ -3,6 +3,7 @@
 namespace app\controllers;
 
 use app\models\forms\LoginForm;
+use delta\AuthHandler;
 use Yii;
 use yii\web\Response;
 use yii\widgets\ActiveForm;
@@ -26,6 +27,30 @@ class LoginController extends \yii\web\Controller
             }
         }
         return $this->render('index', ['model' => $loginForm]);
+    }
+
+    public function actionAuth()
+    {
+        $url = Yii::$app->authClientCollection->getClient("vkontakte")->buildAuthUrl(); // Build authorization URL
+        Yii::$app->getResponse()->redirect($url); // Redirect to authorization URL.
+    }
+
+    public function actionVk()
+    {
+        // After user returns at our site:
+        $code = Yii::$app->request->get('code');
+        $authHandler = new AuthHandler($code);
+
+        if ($authHandler->isAuthExist()) {
+            Yii::$app->user->login($authHandler->getAuth()->user);
+
+            echo 'Пользователь Существует';
+        } else {
+            $authHandler->saveAuthUser();
+            print_r($authHandler['email']);
+            //Yii::$app->user->login($authHandler->getAuth()->user);
+        }
+
     }
 
 }
