@@ -11,22 +11,19 @@ use yii\helpers\ArrayHelper;
 use yii\web\HttpException;
 
 /**
- * Проводит авторизацию через VK
+ * @property array $attributes Массив информации о пользователе
+ * @property VKontakte $vk клиент VK
+ * @property Auth $auth модель Auth для хранения пользователей авторизованных через VK
+ * @param string $code Полученный от VK API код
  */
+
 class AuthHandler
 {
-    /**
-     * @property array $attributes Массив информации о пользователе
-     * @property VKontakte $vk клиент VK
-     * @property Auth $auth модель Auth для хранения пользователей авторизованных через VK
-     */
     public $attributes;
     public $vk;
     public $auth;
 
     /**
-     * Создает помошника для работы с VK API
-     * @param string $code Полученный от VK API код
      * @throws HttpException|Exception
      */
     public function __construct(string $code)
@@ -37,11 +34,7 @@ class AuthHandler
         $this->attributes['email'] = ArrayHelper::getValue($accessToken->params, 'email');
     }
 
-    /**
-     * Проверяет не зарегистрирован ли email пользователя
-     * @return User Возвращает либо уже зарегистрированного пользователя, либо создает нового.
-     */
-    public function getUser()
+    public function getUser(): User
     {
         $user = User::findOne(['email' => $this->attributes['email']]);
         if ($user) {
@@ -50,19 +43,13 @@ class AuthHandler
         return new User();
     }
 
-    /**
-     * @return mixed Пользователь
-     */
-    public function getAuth()
+
+    public function getAuth(): Auth
     {
         return $this->auth;
     }
 
-    /**
-     * Проверяет существование пользователя, если есть, сохраняет
-     * @return bool Пользователь есть|нет
-     */
-    public function isAuthExist()
+    public function isAuthExist(): bool
     {
         $this->auth = Auth::find()->where([
             'source' => $this->vk->getId(),
@@ -76,7 +63,6 @@ class AuthHandler
     }
 
     /**
-     * Сохраняет User и Auth
      * @throws \yii\db\Exception Транзакция не удалась
      * @throws Exception
      */

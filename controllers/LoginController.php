@@ -35,22 +35,21 @@ class LoginController extends \yii\web\Controller
         Yii::$app->getResponse()->redirect($url); // Redirect to authorization URL.
     }
 
+    /**
+     * @throws \yii\db\Exception
+     * @throws \yii\web\HttpException
+     */
     public function actionVk()
     {
         // After user returns at our site:
         $code = Yii::$app->request->get('code');
         $authHandler = new AuthHandler($code);
 
-        if ($authHandler->isAuthExist()) {
-            Yii::$app->user->login($authHandler->getAuth()->user);
-
-            echo 'Пользователь Существует';
-        } else {
+        if (!$authHandler->isAuthExist()) {
             $authHandler->saveAuthUser();
-            print_r($authHandler['email']);
-            //Yii::$app->user->login($authHandler->getAuth()->user);
         }
-
+        Yii::$app->user->login($authHandler->getAuth()->user);
+        $this->redirect('/offers');
     }
 
 }
