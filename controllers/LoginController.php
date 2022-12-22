@@ -52,4 +52,9 @@ class LoginController extends \yii\web\Controller
         $this->redirect('/offers');
     }
 
+    public function actionLogout(): Response
+    {
+        Yii::$app->user->logout();
+        return $this->goHome();
+    }
 }

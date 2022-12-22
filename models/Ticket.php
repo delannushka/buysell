@@ -11,7 +11,7 @@ use Yii;
  * @property int $status
  * @property int $user_id
  * @property string $header
- * @property string|null $photo
+ * @property string $photo
  * @property int $price
  * @property string $type
  * @property string $text
@@ -39,7 +39,7 @@ class Ticket extends \yii\db\ActiveRecord
     {
         return [
             [['status', 'user_id', 'price'], 'integer'],
-            [['user_id', 'header', 'price', 'type', 'text'], 'required'],
+            [['user_id', 'header', 'price', 'type', 'text', 'photo'], 'required'],
             [['type'], 'string'],
             [['date_add'], 'safe'],
             [['header'], 'string', 'max' => 100],

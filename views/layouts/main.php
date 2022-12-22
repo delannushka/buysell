@@ -31,7 +31,7 @@ $this->registerLinkTag(['rel' => 'icon', 'type' => 'image/x-icon', 'href' => Yii
 <body>
 <?php $this->beginBody() ?>
 
-<header class="header">
+<header class="header <?php if (!Yii::$app->user->isGuest): echo 'header--logged'; endif; ?>">
     <div class="header__wrapper">
         <a class="header__logo logo" href="<?=Url::to(['/']) ?>">
             <img src="img/logo.svg" width="179" height="34" alt="Логотип Куплю Продам">
@@ -83,7 +83,7 @@ $this->registerLinkTag(['rel' => 'icon', 'type' => 'image/x-icon', 'href' => Yii
                     <a href="<?=URL::to('\login') ?>">Вход и регистрация</a>
                 </li>
                 <li>
-                    <a href="new-ticket.html">Создать объявление</a>
+                    <a href="<?=URL::to('\offers\add') ?>">Создать объявление</a>
                 </li>
             </ul>
         </div>
