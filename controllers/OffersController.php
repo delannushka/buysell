@@ -2,12 +2,15 @@
 
 namespace app\controllers;
 
+use app\models\Comment;
+use app\models\forms\CommentForm;
 use app\models\forms\LoginForm;
 use app\models\forms\TicketForm;
 use app\models\Ticket;
 use app\models\TicketCategory;
 use Exception;
 use Yii;
+use yii\web\NotFoundHttpException;
 use yii\web\Response;
 use yii\web\UploadedFile;
 use yii\widgets\ActiveForm;
@@ -15,9 +18,34 @@ use delta\UploadFile;
 
 class OffersController extends \yii\web\Controller
 {
-    public function actionIndex()
+    /**
+     * @throws NotFoundHttpException
+     * @throws Exception
+     */
+    public function actionIndex($id)
     {
-        return $this->render('view');
+        $newComment = new CommentForm();
+        $ticket = Ticket::findOne($id);
+        if (!$ticket) {
+            throw new NotFoundHttpException('Объявление не найдено');
+        }
+
+        if (Yii::$app->request->getIsPost()) {
+            $newComment->load(Yii::$app->request->post());
+            if ($newComment->validate()){
+                $comment = new Comment();
+                $comment->user_id = Yii::$app->user->id;
+                $comment->ticket_id = $ticket->id;
+                $comment->text = $newComment->comment;
+                if (!$comment->save()){
+                    throw new Exception('Ошибка загрузки');
+                }
+            }
+        }
+        return $this->render('view', [
+            'ticket' => $ticket,
+            'model' => $newComment,
+        ]);
     }
 
     /**

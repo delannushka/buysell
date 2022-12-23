@@ -15,7 +15,7 @@ use Yii;
  * @property int $price
  * @property string $type
  * @property string $text
- * @property string|null $date_add
+ * @property int|null $date_add
  *
  * @property Category[] $categories
  * @property Comment[] $comments

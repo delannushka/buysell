@@ -34,7 +34,7 @@ $this->registerLinkTag(['rel' => 'icon', 'type' => 'image/x-icon', 'href' => Yii
 <header class="header <?php if (!Yii::$app->user->isGuest): echo 'header--logged'; endif; ?>">
     <div class="header__wrapper">
         <a class="header__logo logo" href="<?=Url::to(['/']) ?>">
-            <img src="img/logo.svg" width="179" height="34" alt="Логотип Куплю Продам">
+            <img src="<?=Yii::$app->request->baseUrl; ?>/img/logo.svg" width="179" height="34" alt="Логотип Куплю Продам">
         </a>
         <nav class="header__user-menu">
             <ul class="header__list">
@@ -51,9 +51,12 @@ $this->registerLinkTag(['rel' => 'icon', 'type' => 'image/x-icon', 'href' => Yii
             <div class="search__icon"></div>
             <div class="search__close-btn"></div>
         </form>
+        <?php if (!Yii::$app->user->isGuest):?>
         <a class="header__avatar avatar" href="#">
-            <img src="img/avatar.jpg" srcset="img/avatar@2x.jpg 2x" alt="Аватар пользователя">
+
+            <img src=<?=Url::to('/uploads/'. Yii::$app->user->identity->avatar) ;?>" srcset=<?=Url::to('/uploads/'. Yii::$app->user->identity->avatar) ;?> alt="Аватар пользователя">
         </a>
+        <?php endif; ?>
         <a class="header__input" href="<?=URL::to('\login') ?>">Вход и регистрация</a>
     </div>
 </header>
@@ -74,7 +77,7 @@ $this->registerLinkTag(['rel' => 'icon', 'type' => 'image/x-icon', 'href' => Yii
         </div>
         <div class="page-footer__col">
             <a href="<?=Url::to(['/']) ?>" class="page-footer__logo logo">
-                <img src="img/logo.svg" width="179" height="35" alt="Логотип Куплю Продам">
+                <img src="<?=Yii::$app->request->baseUrl; ?>/img/logo.svg" width="179" height="35" alt="Логотип Куплю Продам">
             </a>
         </div>
         <div class="page-footer__col">

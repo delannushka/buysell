@@ -64,4 +64,12 @@ class Category extends \yii\db\ActiveRecord
     {
         return $this->hasMany(Ticket::class, ['id' => 'ticket_id'])->viaTable('ticket_category', ['category_id' => 'id']);
     }
+
+    public function getRandomTitleImage()
+    {
+       $randomTicket = TicketCategory::find()->where(['category_id' => $this->id])->orderBy('rand()')->one();
+        return $randomTicket->ticket->photo;
+    }
+
 }
+
