@@ -71,5 +71,10 @@ class Category extends \yii\db\ActiveRecord
         return $randomTicket->ticket->photo;
     }
 
+    public static function getCategoriesList()
+    {
+        return Category::find()->all();
+    }
+
 }
 

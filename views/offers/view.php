@@ -7,6 +7,7 @@
 use app\models\Comment;
 use app\models\forms\CommentForm;
 use app\models\Ticket;
+use delta\TicketHandler;
 use yii\helpers\Html;
 use yii\helpers\Url;
 use yii\widgets\ActiveForm;
@@ -24,7 +25,7 @@ use yii\widgets\ActiveForm;
                     <h2 class="ticket__title"><?=$ticket->header; ?></h2>
                     <div class="ticket__header">
                         <p class="ticket__price"><span class="js-sum"><?=$ticket->price; ?></span> ₽</p>
-                        <p class="ticket__action">ПРОДАМ</p>
+                        <p class="ticket__action"><?= TicketHandler::getLabel($ticket->type); ?></p>
                     </div>
                     <div class="ticket__desc">
                         <p><?=$ticket->text; ?></p>

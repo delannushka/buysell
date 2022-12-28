@@ -14,4 +14,12 @@ class TicketHandler
             self::TICKET_SELL => 'Продам'
         ];
     }
+
+    public static function getLabel($type){
+        if ($type === 'buy') {
+            return 'Куплю';
+        } else {
+            return 'Продам';
+        }
+    }
 }

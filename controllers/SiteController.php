@@ -2,7 +2,11 @@
 
 namespace app\controllers;
 
+use app\models\Category;
+use app\models\Ticket;
+use app\models\TicketCategory;
 use Yii;
+use yii\data\ActiveDataProvider;
 use yii\filters\AccessControl;
 use yii\web\Controller;
 use yii\web\Response;
@@ -12,6 +16,7 @@ use app\models\ContactForm;
 
 class SiteController extends Controller
 {
+    const LIMIT_TICKETS = 8;
     /**
      * {@inheritdoc}
      */
@@ -61,7 +66,35 @@ class SiteController extends Controller
      */
     public function actionIndex()
     {
-        return $this->render('index');
+        $freshTicketsProvider = new ActiveDataProvider([
+            'query' => Ticket::find()->orderBy('date_add DESC')->limit(self::LIMIT_TICKETS),
+        ]);
+
+        $popularTicketsProvider = new ActiveDataProvider([
+            'query' => Ticket::find()
+                ->join('LEFT JOIN', 'comment', 'comment.ticket_id = ticket.id')
+                ->groupBy('ticket.id')
+                ->having('COUNT(comment.id) > 0')
+                ->orderBy('COUNT(comment.id) DESC')
+                ->limit(self::LIMIT_TICKETS),
+        ]);
+
+        $mainCategoriesProvider = new ActiveDataProvider([
+            'query' => Category::find()
+                ->select('id, name, COUNT(ticket_category.category_id) as count')
+                ->join('LEFT JOIN', 'ticket_category', 'ticket_category.category_id = category.id')
+                ->groupBy('category.id')
+                ->having('COUNT(ticket_category.category_id) > 0')
+            ]
+        );
+
+        return $this->render('index',
+            [
+                'mainCategoriesProvider' => $mainCategoriesProvider,
+                'freshTicketsProvider' => $freshTicketsProvider,
+                'popularTicketsProvider' => $popularTicketsProvider,
+            ]
+        );
     }
 
     /**
