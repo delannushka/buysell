@@ -2,6 +2,7 @@
 
 namespace app\controllers;
 
+use app\models\Category;
 use app\models\Comment;
 use app\models\forms\CommentForm;
 use app\models\forms\LoginForm;
@@ -10,6 +11,9 @@ use app\models\Ticket;
 use app\models\TicketCategory;
 use Exception;
 use Yii;
+use yii\data\ActiveDataProvider;
+use yii\data\ArrayDataProvider;
+use yii\data\Pagination;
 use yii\web\NotFoundHttpException;
 use yii\web\Response;
 use yii\web\UploadedFile;
@@ -80,5 +84,35 @@ class OffersController extends \yii\web\Controller
             }
         }
         return $this->render('add.php', ['model' => $newTicket]);
+    }
+
+    /**
+     * @throws NotFoundHttpException
+     */
+    public function actionCategory($id){
+        $category = Category::findOne($id);
+        if(!$category){
+            throw new NotFoundHttpException('Категория не найдена');
+        }
+        $totalCountTickets = $category->getCountTicketsInCategory();
+        $dataProvider = new ActiveDataProvider([
+            'query' => Ticket::find()
+                ->select('id, status, header, photo, price, type, text, ticket_category.category_id as category_id')
+                ->leftJoin('ticket_category', 'ticket_category.ticket_id = ticket_id')
+                ->having('ticket.status = 1 and ticket_category.category_id = ' . $category->id),
+            'totalCount' => $totalCountTickets,
+            'pagination' => [
+                'pageSize' => 1,
+                'pageSizeParam' => false,
+                'forcePageParam' => false
+            ]]
+        );
+
+        $categories = Category::getCategoriesList();
+        return $this->render('category', [
+            'dataProvider' => $dataProvider,
+            'category' => $category,
+            'categories' => $categories
+        ]);
     }
 }

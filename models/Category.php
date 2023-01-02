@@ -76,5 +76,9 @@ class Category extends \yii\db\ActiveRecord
         return Category::find()->all();
     }
 
+    public function getCountTicketsInCategory(){
+        return $this->getTickets()->where(['status' => 1])->count();
+    }
+
 }
 

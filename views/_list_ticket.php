@@ -9,14 +9,15 @@ use yii\helpers\Url;
 <li class="tickets-list__item">
     <div class="ticket-card ticket-card--color08">
         <div class="ticket-card__img">
-            <img src="<?='uploads/tickets/' . $model->photo; ?>" srcset="<?='uploads/tickets/' . $model->photo; ?> 2x" alt="Изображение товара">
+            <img src="<?= Html::img(Yii::$app->urlManager->createUrl('uploads/tickets/' . $model->photo)) ?>" srcset="<?= Html::img(Yii::$app->urlManager->createUrl('uploads/tickets/' . $model->photo)) ?> 2x" alt="Изображение товара">
         </div>
+
         <div class="ticket-card__info">
             <span class="ticket-card__label"><?= TicketHandler::getLabel($model->type); ?></span>
             <div class="ticket-card__categories">
                 <?php
                 foreach ($model->categories as $category): ?>
-                    <a href="#"><?=$category->name; ?></a>
+                    <a href="<?=Url::to('/offers/category/' . $category->id) ;?>"><?=$category->name; ?></a>
                 <?php
                 endforeach; ?>
             </div>

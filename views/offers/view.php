@@ -48,7 +48,7 @@ use yii\widgets\ActiveForm;
                         <?php foreach ($ticket->categories as $category): ?>
 
                         <li>
-                            <a href="#" class="category-tile category-tile--small">
+                            <a href="<?=Url::to('/offers/category/' . $category->id) ;?>" class="category-tile category-tile--small">
                 <span class="category-tile__image">
                   <img src="<?=Url::to('/uploads/tickets/'. $category->getRandomTitleImage()) ;?>" srcset = "<?=Url::to('/uploads/tickets/'. $category->getRandomTitleImage()) ;?> 2x " alt="Иконка категории">
                 </span>

@@ -6,7 +6,7 @@ use yii\helpers\Url;
 ?>
 
 <li class="categories-list__item">
-    <a href="#" class="category-tile category-tile--default">
+    <a href="<?=Url::to('/offers/category/' . $model->id) ;?>" class="category-tile category-tile--default">
         <span class="category-tile__image">
             <img src="<?='uploads/tickets/' . $model->getRandomTitleImage(); ?>" srcset="<?=Url::to('/uploads/tickets/'. $model->getRandomTitleImage()) ;?> 2x" alt="Иконка категории">
         </span>

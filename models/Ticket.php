@@ -3,6 +3,9 @@
 namespace app\models;
 
 use Yii;
+use yii\data\ActiveDataProvider;
+use yii\data\Pagination;
+use yii\db\ActiveQuery;
 
 /**
  * This is the model class for table "ticket".
@@ -70,7 +73,7 @@ class Ticket extends \yii\db\ActiveRecord
     /**
      * Gets query for [[Categories]].
      *
-     * @return \yii\db\ActiveQuery
+     * @return ActiveQuery
      */
     public function getCategories()
     {
@@ -80,7 +83,7 @@ class Ticket extends \yii\db\ActiveRecord
     /**
      * Gets query for [[Comments]].
      *
-     * @return \yii\db\ActiveQuery
+     * @return ActiveQuery
      */
     public function getComments()
     {
@@ -90,7 +93,7 @@ class Ticket extends \yii\db\ActiveRecord
     /**
      * Gets query for [[TicketCategories]].
      *
-     * @return \yii\db\ActiveQuery
+     * @return ActiveQuery
      */
     public function getTicketCategories()
     {
@@ -100,10 +103,34 @@ class Ticket extends \yii\db\ActiveRecord
     /**
      * Gets query for [[User]].
      *
-     * @return \yii\db\ActiveQuery
+     * @return ActiveQuery
      */
     public function getUser()
     {
         return $this->hasOne(User::class, ['id' => 'user_id']);
     }
+
+    public static function getAllByCategory(Category $category)
+    {
+        $query = Ticket::find()
+            ->select('id, status, header, photo, price, type, text, ticket_category.category_id as category_id')
+            ->leftJoin('ticket_category', 'ticket_category.ticket_id = ticket_id')
+            ->having('ticket.status = 1 and ticket_category.category_id = ' . $category->id);
+
+        return new ActiveDataProvider([
+            'query' => $query,
+            'totalCount' => $query->count(),
+            'pagination' => [
+                'pageSize' => 8,
+                'forcePageParam' => false,
+                'pageSizeParam' => false
+            ],
+            'sort' => [
+                'defaultOrder' => [
+                    'id' => SORT_DESC
+                ]
+            ],
+        ]);
+    }
+
 }
