@@ -67,14 +67,14 @@ class SiteController extends Controller
     public function actionIndex()
     {
         $freshTicketsProvider = new ActiveDataProvider([
-            'query' => Ticket::find()->orderBy('date_add DESC')->limit(self::LIMIT_TICKETS),
+            'query' => Ticket::find()->where(['status' => 1])->orderBy('date_add DESC')->limit(self::LIMIT_TICKETS),
         ]);
 
         $popularTicketsProvider = new ActiveDataProvider([
             'query' => Ticket::find()
                 ->join('LEFT JOIN', 'comment', 'comment.ticket_id = ticket.id')
                 ->groupBy('ticket.id')
-                ->having('COUNT(comment.id) > 0')
+                ->having('COUNT(comment.id) > 0 AND status = 1')
                 ->orderBy('COUNT(comment.id) DESC')
                 ->limit(self::LIMIT_TICKETS),
         ]);

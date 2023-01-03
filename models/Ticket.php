@@ -133,4 +133,24 @@ class Ticket extends \yii\db\ActiveRecord
         ]);
     }
 
+    /**
+     * @throws \Exception
+     */
+    public function deleteTicket(){
+        $this->status = 0;
+        $comments = $this->comments;
+        foreach ($comments as $comment){
+            $comment->status = 0;
+            if(!$comment->save()){
+                throw new \Exception('ошибка сохранения в БД');
+            };
+        }
+        if ($this->save()){
+            return true;
+        }
+        else {
+            return throw new \Exception('Не удалось внести изменеия в базу');
+        }
+    }
+
 }

@@ -12,6 +12,7 @@ use Yii;
  * @property int $ticket_id
  * @property string $text
  * @property string|null $date
+ * @property int $status
  *
  * @property Ticket $ticket
  * @property User $user
@@ -33,7 +34,7 @@ class Comment extends \yii\db\ActiveRecord
     {
         return [
             [['user_id', 'ticket_id', 'text'], 'required'],
-            [['user_id', 'ticket_id'], 'integer'],
+            [['user_id', 'ticket_id', 'status'], 'integer'],
             [['date'], 'safe'],
             [['text'], 'string', 'max' => 255],
             [['user_id'], 'exist', 'skipOnError' => true, 'targetClass' => User::class, 'targetAttribute' => ['user_id' => 'id']],
@@ -52,6 +53,7 @@ class Comment extends \yii\db\ActiveRecord
             'ticket_id' => 'Ticket ID',
             'text' => 'Text',
             'date' => 'Date',
+            'status' => 'Status'
         ];
     }
 

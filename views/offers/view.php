@@ -97,6 +97,7 @@ use yii\widgets\ActiveForm;
                 <div class="ticket__comments-list">
                     <ul class="comments-list">
                         <?php foreach ($ticket->comments as $comment): ?>
+                        <?php if ($comment->status === 1): ?>
                         <li>
                             <div class="comment-card">
                                 <div class="comment-card__header">
@@ -110,7 +111,7 @@ use yii\widgets\ActiveForm;
                                 </div>
                             </div>
                         </li>
-                        <?php endforeach; ?>
+                        <?php endif; endforeach; ?>
                     </ul>
                 </div>
                 <?php if(Comment::find()->where(['ticket_id' => $ticket->id])->count() === 0): ;?>
