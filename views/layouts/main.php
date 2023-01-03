@@ -39,15 +39,15 @@ $this->registerLinkTag(['rel' => 'icon', 'type' => 'image/x-icon', 'href' => Yii
         <nav class="header__user-menu">
             <ul class="header__list">
                 <li class="header__item">
-                    <a href="#">Публикации</a>
+                    <a href="<?=URL::to('/my') ?>">Публикации</a>
                 </li>
                 <li class="header__item">
-                    <a href="#">Комментарии</a>
+                    <a href="<?=URL::to('/my/comments') ?>">Комментарии</a>
                 </li>
             </ul>
         </nav>
-        <form class="search" method="get" action="#" autocomplete="off">
-            <input type="search" name="query" placeholder="Поиск" aria-label="Поиск">
+        <form class="search" method="get" action="/search" autocomplete="off">
+            <input type="search" name="query" placeholder="Поиск" aria-label="Поиск" value="<?=Yii::$app->request->get('query') ?? ''; ?>">
             <div class="search__icon"></div>
             <div class="search__close-btn"></div>
         </form>
@@ -57,7 +57,7 @@ $this->registerLinkTag(['rel' => 'icon', 'type' => 'image/x-icon', 'href' => Yii
             <img src=<?=Url::to('/uploads/'. Yii::$app->user->identity->avatar) ;?>" srcset=<?=Url::to('/uploads/'. Yii::$app->user->identity->avatar) ;?> alt="Аватар пользователя">
         </a>
         <?php endif; ?>
-        <a class="header__input" href="<?=URL::to('\login') ?>">Вход и регистрация</a>
+        <a class="header__input" href="<?=URL::to('/login') ?>">Вход и регистрация</a>
     </div>
 </header>
 
@@ -83,10 +83,10 @@ $this->registerLinkTag(['rel' => 'icon', 'type' => 'image/x-icon', 'href' => Yii
         <div class="page-footer__col">
             <ul class="page-footer__nav">
                 <li>
-                    <a href="<?=URL::to('\login') ?>">Вход и регистрация</a>
+                    <a href="<?=URL::to('/login') ?>">Вход и регистрация</a>
                 </li>
                 <li>
-                    <a href="<?=URL::to('\offers\add') ?>">Создать объявление</a>
+                    <a href="<?=URL::to('/offers/add') ?>">Создать объявление</a>
                 </li>
             </ul>
         </div>
