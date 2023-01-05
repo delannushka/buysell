@@ -138,6 +138,8 @@ class Ticket extends \yii\db\ActiveRecord
      */
     public function deleteTicket(){
         $this->status = 0;
+        //$ticketCategories = $this->ticketCategories;
+
         $comments = $this->comments;
         foreach ($comments as $comment){
             $comment->status = 0;

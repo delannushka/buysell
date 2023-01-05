@@ -76,4 +76,18 @@ class Comment extends \yii\db\ActiveRecord
     {
         return $this->hasOne(User::class, ['id' => 'user_id']);
     }
+
+    /**
+     * @throws \Exception
+     */
+    public function deleteComment()
+    {
+        $this->status = 0;
+        if ($this->save()){
+            return true;
+        }
+        else {
+            return throw new \Exception('Не удалось внести изменеия в базу');
+        }
+    }
 }

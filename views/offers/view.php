@@ -114,7 +114,7 @@ use yii\widgets\ActiveForm;
                         <?php endif; endforeach; ?>
                     </ul>
                 </div>
-                <?php if(Comment::find()->where(['ticket_id' => $ticket->id])->count() === 0): ;?>
+                <?php if(Comment::find()->where(['ticket_id' => $ticket->id, 'status' => 1])->count() === 0): ;?>
                 <div class="ticket__message">
                     <p>У этой публикации еще нет ни одного комментария.</p>
                 </div>

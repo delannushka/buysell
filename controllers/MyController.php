@@ -2,6 +2,7 @@
 
 namespace app\controllers;
 
+use app\models\Comment;
 use app\models\Ticket;
 use http\Url;
 use Yii;
@@ -30,7 +31,22 @@ class MyController extends \yii\web\Controller
 
     public function actionComments()
     {
-        return $this->render('comments');
+        $userId = Yii::$app->user->id;
+        $ticketProvider = new ActiveDataProvider([
+            'query' => Ticket::find()
+                ->leftJoin('comment', 'comment.ticket_id = ticket.id')
+                ->where([
+                    'ticket.user_id' => $userId,
+                    'ticket.status' => 1,
+                    'comment.status' => 1
+                ])
+                ->groupBy('ticket.id')
+                ->having('COUNT(comment.id) > 0')
+                ->orderBy('MAX(comment.id) DESC')
+        ]);
+        return $this->render('comments', [
+            'ticketProvider' => $ticketProvider
+        ]);
     }
 
     /**
@@ -43,6 +59,18 @@ class MyController extends \yii\web\Controller
             return $this->redirect('/my');
         } else {
             throw new \Exception('Не удалось удалить объявдение');
+        }
+    }
+
+    /**
+     * @throws \Exception
+     */
+    public function actionCommentout($id){
+        $comment = Comment::findOne($id);
+        if ($comment->deleteComment()){
+            return $this->redirect('/my/comments');
+        } else {
+            throw new \Exception('Не удалось удалить комментарий');
         }
     }
 }

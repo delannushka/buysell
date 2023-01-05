@@ -42,7 +42,7 @@ $this->registerLinkTag(['rel' => 'icon', 'type' => 'image/x-icon', 'href' => Yii
                     <a href="<?=URL::to('/my'); ?>">Публикации</a>
                 </li>
                 <li class="header__item">
-                    <a href="<?=URL::to('/my/comments/' . Yii::$app->user->id); ?>">Комментарии</a>
+                    <a href="<?=URL::to('/my/comments'); ?>">Комментарии</a>
                 </li>
             </ul>
         </nav>
@@ -54,7 +54,7 @@ $this->registerLinkTag(['rel' => 'icon', 'type' => 'image/x-icon', 'href' => Yii
         <?php if (!Yii::$app->user->isGuest):?>
         <a class="header__avatar avatar" href="#">
 
-            <img src=<?=Url::to('/uploads/'. Yii::$app->user->identity->avatar); ?>" srcset=<?=Url::to('/uploads/'. Yii::$app->user->identity->avatar) ;?> alt="Аватар пользователя">
+            <img src="<?=Url::to('/uploads/'. Yii::$app->user->identity->avatar); ?>" srcset="<?=Url::to('/uploads/'. Yii::$app->user->identity->avatar) ;?>" alt="Аватар пользователя">
         </a>
         <?php endif; ?>
         <a class="header__input" href="<?=URL::to('/login') ?>">Вход и регистрация</a>
