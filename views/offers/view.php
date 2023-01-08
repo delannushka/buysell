@@ -86,6 +86,7 @@ use yii\widgets\ActiveForm;
                         </div>
                         <div class="comment-form__field">
                             <?php
+                            $model->comment = '';
                             echo $form->field($model, 'comment')->textarea(['class' => 'js-field']);
                            ?>
                         </div>

@@ -13,11 +13,11 @@ class SearchController extends \yii\web\Controller
         $query = Yii::$app->request->get('query');
 
         $searchTicketsProvider = new ActiveDataProvider([
-            'query' => Ticket::find()->where("MATCH(header) AGAINST('{$query}')")
+            'query' => Ticket::find()->where("status = 1 and MATCH(header) AGAINST('{$query}')")
         ]);
 
         $freshTicketsProvider = new ActiveDataProvider([
-            'query' => Ticket::find()->orderBy('date_add DESC')->limit(8),
+            'query' => Ticket::find()->where(['status' => 1])->orderBy('date_add DESC')->limit(8),
         ]);
 
         return $this->render('index', [

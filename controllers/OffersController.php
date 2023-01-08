@@ -85,7 +85,7 @@ class OffersController extends \yii\web\Controller
                 }
             }
         }
-        return $this->render('edit.php', ['model' => $newTicket]);
+        return $this->render('add-edit', ['model' => $newTicket]);
     }
 
     /**
@@ -124,7 +124,7 @@ class OffersController extends \yii\web\Controller
     public function actionEdit($id)
     {
         $ticket = Ticket::findOne($id);
-        $ticketEditForm = new TicketEditForm();
+        $ticketEditForm = new TicketForm();
         $ticketEditForm->header = $ticket->header;
         $ticketEditForm->text = $ticket->text;
         $ticketEditForm->price = $ticket->price;
@@ -134,14 +134,17 @@ class OffersController extends \yii\web\Controller
 
         if (Yii::$app->request->getIsPost()) {
             $ticketEditForm->load(Yii::$app->request->post());
-            $ticketEditForm->avatar = UploadedFile::getInstance($ticketEditForm, 'avatar');
-
+            if ($ticketEditForm->avatar !== $ticket->photo) {
+                $ticketEditForm->avatar = UploadedFile::getInstance($ticketEditForm, 'avatar');
+            }
             if ($ticketEditForm->validate()) {
                 $ticket->header = $ticketEditForm->header;
                 $ticket->text = $ticketEditForm->text;
                 $ticket->price = $ticketEditForm->price;
                 $ticket->type = $ticketEditForm->type;
-                $ticket->photo = UploadFile::upload($ticketEditForm->avatar, 'tickets');
+                if ($ticketEditForm->avatar!== $ticket->photo) {
+                    $ticket->photo = UploadFile::upload($ticketEditForm->avatar, 'tickets');
+                }
                 TicketCategory::deleteAll(['ticket_id' => $ticket->id]);
                 foreach ($ticketEditForm->categories as $category) {
                     $ticketCategory = new TicketCategory();
@@ -155,7 +158,7 @@ class OffersController extends \yii\web\Controller
             }
         }
 
-        return $this->render('edit', [
+        return $this->render('add-edit', [
             'model' => $ticketEditForm
         ]);
     }

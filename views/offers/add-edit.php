@@ -1,11 +1,11 @@
 <?php
 
 /** @var Ticket $ticket */
-/** @var TicketEditForm $model */
+/** @var TicketForm $model */
 
 use app\models\Category;
 use app\models\Ticket;
-use app\models\forms\TicketEditForm;
+use app\models\forms\TicketForm;
 use delta\TicketHandler;
 use yii\helpers\ArrayHelper;
 use yii\helpers\Html;
@@ -56,14 +56,13 @@ use yii\widgets\ActiveForm;
 
                     <div class="ticket-form__row">
                         <div class="form__field">
-                        <?= $form->field($model, 'categories', ['options' => ['tag' => false]])->dropDownList(ArrayHelper::map(
-                                Category::find()->all(),
-                                'id',
-                                'name'
-                        ), ['class' => 'form__select js-multiple-select',
-                            'placeholder' => "Выбрать категорию публикации",
-                            'multiple' => true])->label(false)
-                        ?>
+                            <?= $form->field($model, 'categories', ['options' => [
+                                    'tag' => false]])->dropDownList(
+                                            ArrayHelper::map(Category::find()->all(), 'id', 'name'), [
+                                                    'class' => 'form__select js-multiple-select',
+                                                    'placeholder' => "Выбрать категорию публикации",
+                                                    'multiple' => true])->label(false)
+                            ?>
                         </div>
                     </div>
 
@@ -74,7 +73,6 @@ use yii\widgets\ActiveForm;
                                     'template' => "{input}{label}{error}"])
                                     ->input('number', ['class' => 'js-field js-price']) ?>
                         </div>
-
                         <div class="form__switch switch">
                             <?=$form->field($model, 'type', ['options' => [
                                 'class' => 'form__field--price'],
@@ -89,14 +87,11 @@ use yii\widgets\ActiveForm;
                                     },
                                 ]);
                             ?>
-
                         </div>
                     </div>
                 </div>
-            <?=Html::submitButton('Сохранить', ['class' => 'form__button btn btn--medium js-button']); ?>
+            <?=Html::submitButton((Yii::$app->request->url !== '/offers/add')  ? 'Сохранить' : 'Опубликовать', ['class' => 'form__button btn btn--medium js-button']); ?>
             <?php ActiveForm::end() ?>
-
-
         </div>
     </div>
 </section>

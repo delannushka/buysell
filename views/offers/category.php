@@ -29,7 +29,7 @@ use yii\widgets\ListView;
     </section>
 
     <?php if($category->countTicketsInCategory === 0){
-        echo '<p>Объявления данной категории пока отсутсвуют</p>';
+        echo '<div class="search-results__message"> Объявления отсутствуют</div>';
     } else { ?>
         <section class="tickets-list">
             <h2 class="visually-hidden">Предложения из категории электроника</h2>

@@ -12,15 +12,14 @@ use yii\bootstrap5\NavBar;
 use yii\helpers\Url;
 
 AppAsset::register($this);
-
 $this->registerCsrfMetaTags();
 $this->registerMetaTag(['charset' => Yii::$app->charset], 'charset');
 $this->registerMetaTag(['name' => 'viewport', 'content' => 'width=device-width, initial-scale=1, shrink-to-fit=no']);
 $this->registerMetaTag(['name' => 'description', 'content' => "Доска объявлений — современный веб-сайт, упрощающий продажу или покупку абсолютно любых вещей." ?? '']);
 // пока закомментрую
 //$this->registerMetaTag(['name' => 'keywords', 'content' => $this->params['meta_keywords'] ?? '']);
-$this->registerLinkTag(['rel' => 'icon', 'type' => 'image/x-icon', 'href' => Yii::getAlias('@web/favicon.ico')]);
-?>
+$this->registerLinkTag(['rel' => 'icon', 'type' => 'image/x-icon', 'href' => Yii::getAlias('@web/img/favicon.ico')]);?>
+
 <?php $this->beginPage() ?>
 <!DOCTYPE html>
 <html lang="<?= Yii::$app->language ?>">
@@ -82,9 +81,15 @@ $this->registerLinkTag(['rel' => 'icon', 'type' => 'image/x-icon', 'href' => Yii
         </div>
         <div class="page-footer__col">
             <ul class="page-footer__nav">
+                <?php if (Yii::$app->user->isGuest): ?>
                 <li>
                     <a href="<?=URL::to('/login') ?>">Вход и регистрация</a>
                 </li>
+                <?php else: ?>
+                <li>
+                    <a href="<?=URL::to('/login/logout') ?>">Выйти</a>
+                </li>
+                <?php endif; ?>
                 <li>
                     <a href="<?=URL::to('/offers/add') ?>">Создать объявление</a>
                 </li>

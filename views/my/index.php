@@ -9,7 +9,7 @@ use yii\widgets\ListView;
             <div class="tickets-list__header">
                 <a href="<?=\yii\helpers\Url::to('/offers/add'); ?>" class="tickets-list__btn btn btn--big"><span>Новая публикация</span></a>
             </div>
-
+            <?php if ($myTicketsProvider->totalCount !== 0): ?>
             <?= ListView::widget([
                 'dataProvider' => $myTicketsProvider,
                 'itemView' => '/_list_my_ticket',
@@ -19,14 +19,12 @@ use yii\widgets\ListView;
                 'layout' => '{items}',
                 'itemOptions' => [
                     'tag' => false
-                ],
-                'emptyText' => 'Не найдено <br>ни&nbsp;одной публикации',
-                'emptyTextOptions' => [
-                    'tag' => 'div',
-                    'class' => 'search-results__message'
-                ]
-            ])
+                ]])
             ?>
+<?php else: ?>
+
+    <div class="search-results__message"> У вас нет <br>ни&nbsp;одной публикации </div>
+            <?php endif; ?>
         </div>
     </section>
 
