@@ -7,6 +7,7 @@ use app\models\Comment;
 use app\models\forms\CommentForm;
 use app\models\forms\LoginForm;
 use app\models\forms\TicketForm;
+use app\models\forms\TicketEditForm;
 use app\models\Ticket;
 use app\models\TicketCategory;
 use Exception;
@@ -14,6 +15,7 @@ use Yii;
 use yii\data\ActiveDataProvider;
 use yii\data\ArrayDataProvider;
 use yii\data\Pagination;
+use yii\helpers\ArrayHelper;
 use yii\web\NotFoundHttpException;
 use yii\web\Response;
 use yii\web\UploadedFile;
@@ -83,7 +85,7 @@ class OffersController extends \yii\web\Controller
                 }
             }
         }
-        return $this->render('add.php', ['model' => $newTicket]);
+        return $this->render('edit.php', ['model' => $newTicket]);
     }
 
     /**
@@ -113,6 +115,48 @@ class OffersController extends \yii\web\Controller
             'dataProvider' => $dataProvider,
             'category' => $category,
             'categories' => $categories
+        ]);
+    }
+
+    /**
+     * @throws Exception
+     */
+    public function actionEdit($id)
+    {
+        $ticket = Ticket::findOne($id);
+        $ticketEditForm = new TicketEditForm();
+        $ticketEditForm->header = $ticket->header;
+        $ticketEditForm->text = $ticket->text;
+        $ticketEditForm->price = $ticket->price;
+        $ticketEditForm->type = $ticket->type;
+        $ticketEditForm->categories = TicketCategory::find()->select('category_id')->where(['ticket_id'=> $ticket->id])->column();
+        $ticketEditForm->avatar = $ticket->photo;
+
+        if (Yii::$app->request->getIsPost()) {
+            $ticketEditForm->load(Yii::$app->request->post());
+            $ticketEditForm->avatar = UploadedFile::getInstance($ticketEditForm, 'avatar');
+
+            if ($ticketEditForm->validate()) {
+                $ticket->header = $ticketEditForm->header;
+                $ticket->text = $ticketEditForm->text;
+                $ticket->price = $ticketEditForm->price;
+                $ticket->type = $ticketEditForm->type;
+                $ticket->photo = UploadFile::upload($ticketEditForm->avatar, 'tickets');
+                TicketCategory::deleteAll(['ticket_id' => $ticket->id]);
+                foreach ($ticketEditForm->categories as $category) {
+                    $ticketCategory = new TicketCategory();
+                    $ticketCategory->ticket_id = $ticket->id;
+                    $ticketCategory->category_id = $category;
+                    $ticketCategory->save();
+                }
+                if ($ticket->save()){
+                    return Yii::$app->response->redirect("/offers/{$ticket->id}");
+                }
+            }
+        }
+
+        return $this->render('edit', [
+            'model' => $ticketEditForm
         ]);
     }
 }

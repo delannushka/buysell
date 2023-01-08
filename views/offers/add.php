@@ -9,6 +9,7 @@ use app\models\forms\TicketForm;
 use delta\TicketHandler;
 use yii\helpers\ArrayHelper;
 use yii\helpers\Html;
+use yii\helpers\Url;
 use yii\widgets\ActiveForm;
 
 ?>
@@ -34,7 +35,6 @@ use yii\widgets\ActiveForm;
                 <div class="ticket-form__avatar-container js-preview-container">
                     <div class="ticket-form__avatar js-preview"></div>
                     <div class="ticket-form__field-avatar">
-
                         <?=$form->field($model, 'avatar', ['template' => "{input}\n{error}"])
                             ->fileInput([
                                 'class' => 'visually-hidden js-file-field',
