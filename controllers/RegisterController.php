@@ -29,6 +29,10 @@ class RegisterController extends Controller
                 $user->avatar = $user->uploadAvatar($registerForm->avatar);
                 if ($user->validate()){
                     $user->save();
+                    //по умолчанию пользователь становится обладателем роли author
+                    $auth = Yii::$app->authManager;
+                    $authorRole = $auth->getRole('user');
+                    $auth->assign($authorRole, $user->id);
                 }
                 return Yii::$app->response->redirect('/login');
             }
