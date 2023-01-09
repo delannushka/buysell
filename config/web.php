@@ -67,6 +67,9 @@ $config = [
                     'scope' => 'email'
                 ],
             ],
+        ],
+        'authManager' => [
+            'class' => 'yii\rbac\DbManager',
         ]
     ],
     'params' => $params,
