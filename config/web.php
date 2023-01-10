@@ -23,6 +23,7 @@ $config = [
         'user' => [
             'identityClass' => 'app\models\User',
             'enableAutoLogin' => true,
+            'loginUrl' => ['/login']
         ],
         'errorHandler' => [
             'errorAction' => 'site/error',
@@ -46,14 +47,16 @@ $config = [
         'urlManager' => [
             'enablePrettyUrl' => true,
             'showScriptName' => false,
-            'enableStrictParsing' => false,
             'rules' => [
+                '/' => 'site/index',
                 'offers/category/<id:\d+>/page/<page:\d+>' => 'offers/category',
                 'offers/category/<id:\d+>' => 'offers/category',
                 'offers/<id:\d+>' => 'offers/index',
-                '<controller:\w+>/<action:\w+>/<id:\d+>' => '<controller>/<action>',
-                '<controller:\w+>/<action:\w+>' => '<controller>/<action>',
-
+                'login/logout' => 'login/logout',
+                'search/<query:\.*>' => 'search',
+                'offers/edit/<id:\d+>' => 'offers/edit',
+                'my/delete/<id:\d+>' => 'my/delete',
+                'my/commentout/<id:\d+>' => 'my/commentout',
             ],
         ],
         'authClientCollection' => [

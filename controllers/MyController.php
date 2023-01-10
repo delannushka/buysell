@@ -4,13 +4,30 @@ namespace app\controllers;
 
 use app\models\Comment;
 use app\models\Ticket;
-use http\Url;
 use Yii;
 use yii\data\ActiveDataProvider;
-use yii\web\ServerErrorHttpException;
+use yii\filters\AccessControl;
+use yii\web\Controller;
 
-class MyController extends \yii\web\Controller
+class MyController extends Controller
 {
+
+    public function behaviors()
+    {
+        return [
+            'access' => [
+                'class' => AccessControl::class,
+                'rules' => [
+                    [
+                        'allow'   => true,
+                        'actions' => [],
+                        'roles'   => ['@'],
+                    ],
+                ],
+            ],
+        ];
+    }
+
     public function actionIndex(){
 
         $id = \Yii::$app->user->id;
@@ -55,10 +72,14 @@ class MyController extends \yii\web\Controller
      */
     public function actionDelete($id){
         $ticket = Ticket::findOne($id);
-        if ($ticket->deleteTicket()){
-            return $this->redirect('/my');
+        if (Yii::$app->user->can('editAllTickets', ['author_id' => $ticket->user_id])) {
+            if ($ticket->deleteTicket()) {
+                return $this->redirect('/my');
+            } else {
+                throw new \Exception('Не удалось удалить объявдение');
+            }
         } else {
-            throw new \Exception('Не удалось удалить объявдение');
+            return 'НЕ ВАШЕ ОБЪЯВЛЕНИЕ';
         }
     }
 
@@ -67,10 +88,14 @@ class MyController extends \yii\web\Controller
      */
     public function actionCommentout($id){
         $comment = Comment::findOne($id);
-        if ($comment->deleteComment()){
-            return $this->redirect('/my/comments');
+        if (Yii::$app->user->can('editAllTickets', ['author_id' => $comment->ticket->user_id])) {
+            if ($comment->deleteComment()) {
+                return $this->redirect('/my/comments');
+            } else {
+                throw new \Exception('Не удалось удалить комментарий');
+            }
         } else {
-            throw new \Exception('Не удалось удалить комментарий');
+            return 'НЕ ВАШЕ ОБЪЯВЛЕНИЕ';
         }
     }
 }

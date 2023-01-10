@@ -5,25 +5,41 @@ namespace app\controllers;
 use app\models\Category;
 use app\models\Comment;
 use app\models\forms\CommentForm;
-use app\models\forms\LoginForm;
 use app\models\forms\TicketForm;
-use app\models\forms\TicketEditForm;
 use app\models\Ticket;
 use app\models\TicketCategory;
 use Exception;
 use Yii;
 use yii\data\ActiveDataProvider;
-use yii\data\ArrayDataProvider;
-use yii\data\Pagination;
-use yii\helpers\ArrayHelper;
+use yii\filters\AccessControl;
 use yii\web\NotFoundHttpException;
-use yii\web\Response;
 use yii\web\UploadedFile;
-use yii\widgets\ActiveForm;
 use delta\UploadFile;
 
 class OffersController extends \yii\web\Controller
 {
+    public function behaviors()
+    {
+        return [
+            'access' => [
+                'class' => AccessControl::class,
+                'rules' => [
+                    [
+                        'allow'   => true,
+                        'actions' => ['index', 'category'],
+                        'roles'   => ['?', '@'],
+                    ],
+                    [
+                        'allow'   => true,
+                        'actions' => ['add', 'edit'],
+                        'roles'   => ['@'],
+
+                    ],
+                ],
+            ],
+        ];
+    }
+
     /**
      * @throws NotFoundHttpException
      * @throws Exception
@@ -124,42 +140,47 @@ class OffersController extends \yii\web\Controller
     public function actionEdit($id)
     {
         $ticket = Ticket::findOne($id);
-        $ticketEditForm = new TicketForm();
-        $ticketEditForm->header = $ticket->header;
-        $ticketEditForm->text = $ticket->text;
-        $ticketEditForm->price = $ticket->price;
-        $ticketEditForm->type = $ticket->type;
-        $ticketEditForm->categories = TicketCategory::find()->select('category_id')->where(['ticket_id'=> $ticket->id])->column();
-        $ticketEditForm->avatar = $ticket->photo;
+        if (Yii::$app->user->can('editAllTickets', ['author_id' => $ticket->user_id])) {
+            $ticketEditForm = new TicketForm();
+            $ticketEditForm->header = $ticket->header;
+            $ticketEditForm->text = $ticket->text;
+            $ticketEditForm->price = $ticket->price;
+            $ticketEditForm->type = $ticket->type;
+            $ticketEditForm->categories = TicketCategory::find()->select('category_id')->where(
+                ['ticket_id' => $ticket->id]
+            )->column();
+            $ticketEditForm->avatar = $ticket->photo;
 
-        if (Yii::$app->request->getIsPost()) {
-            $ticketEditForm->load(Yii::$app->request->post());
-            if ($ticketEditForm->avatar !== $ticket->photo) {
-                $ticketEditForm->avatar = UploadedFile::getInstance($ticketEditForm, 'avatar');
+            if (Yii::$app->request->getIsPost()) {
+                $ticketEditForm->load(Yii::$app->request->post());
+                if ($ticketEditForm->avatar !== $ticket->photo) {
+                    $ticketEditForm->avatar = UploadedFile::getInstance($ticketEditForm, 'avatar');
+                }
+                if ($ticketEditForm->validate()) {
+                    $ticket->header = $ticketEditForm->header;
+                    $ticket->text = $ticketEditForm->text;
+                    $ticket->price = $ticketEditForm->price;
+                    $ticket->type = $ticketEditForm->type;
+                    if ($ticketEditForm->avatar !== $ticket->photo) {
+                        $ticket->photo = UploadFile::upload($ticketEditForm->avatar, 'tickets');
+                    }
+                    TicketCategory::deleteAll(['ticket_id' => $ticket->id]);
+                    foreach ($ticketEditForm->categories as $category) {
+                        $ticketCategory = new TicketCategory();
+                        $ticketCategory->ticket_id = $ticket->id;
+                        $ticketCategory->category_id = $category;
+                        $ticketCategory->save();
+                    }
+                    if ($ticket->save()) {
+                        return Yii::$app->response->redirect("/offers/{$ticket->id}");
+                    }
+                }
             }
-            if ($ticketEditForm->validate()) {
-                $ticket->header = $ticketEditForm->header;
-                $ticket->text = $ticketEditForm->text;
-                $ticket->price = $ticketEditForm->price;
-                $ticket->type = $ticketEditForm->type;
-                if ($ticketEditForm->avatar!== $ticket->photo) {
-                    $ticket->photo = UploadFile::upload($ticketEditForm->avatar, 'tickets');
-                }
-                TicketCategory::deleteAll(['ticket_id' => $ticket->id]);
-                foreach ($ticketEditForm->categories as $category) {
-                    $ticketCategory = new TicketCategory();
-                    $ticketCategory->ticket_id = $ticket->id;
-                    $ticketCategory->category_id = $category;
-                    $ticketCategory->save();
-                }
-                if ($ticket->save()){
-                    return Yii::$app->response->redirect("/offers/{$ticket->id}");
-                }
-            }
+            return $this->render('add-edit', [
+                'model' => $ticketEditForm
+            ]);
+        } else {
+          return (print_r('НЕ ВАШЕ ОБЪЯВЛЕНИЕ!'));
         }
-
-        return $this->render('add-edit', [
-            'model' => $ticketEditForm
-        ]);
     }
 }

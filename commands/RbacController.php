@@ -17,6 +17,7 @@ class RbacController extends \yii\web\Controller
     public function actionInit()
     {
         $auth = Yii::$app->authManager;
+        $auth->removeAll(); //Очищаю все таблицы
 
         //добавляем роли
         $user = $auth->createRole('user');

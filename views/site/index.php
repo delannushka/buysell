@@ -66,7 +66,12 @@ $this->title = 'Куплю Продам';
                 ],
                 'itemView' => '/_list_ticket',
                 'itemOptions' => ['tag' => false],
-                'layout' => '{items}'
+                'layout' => '{items}',
+                'emptyText' => 'Объявления отсутствуют',
+                'emptyTextOptions' => [
+                    'tag' => 'div',
+                    'class' => 'comments__message'
+                ]
             ]);
             ?>
         </div>

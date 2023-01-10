@@ -3,13 +3,42 @@
 namespace app\controllers;
 
 use app\models\forms\LoginForm;
+use app\models\rbac\AuthorRule;
 use delta\AuthHandler;
 use Yii;
+use yii\filters\AccessControl;
+use yii\web\Controller;
 use yii\web\Response;
 use yii\widgets\ActiveForm;
 
-class LoginController extends \yii\web\Controller
+class LoginController extends Controller
 {
+    public function behaviors()
+    {
+        return [
+            'access' => [
+                'class' => AccessControl::class,
+                'denyCallback' => function () {
+                    echo('Если вы на сайте - входить заново не надо! 
+                    Если вы не на сайте, не надо пытаться из него выходить!');
+                },
+                'rules' => [
+                    [
+                        'allow'   => true,
+                        'actions' => ['index', 'auth', 'vk'],
+                        'roles'   => ['?'],
+                    ],
+                    [
+                        'allow'   => true,
+                        'actions' => ['logout'],
+                        'roles'   => ['@'],
+                    ],
+                ],
+
+            ],
+        ];
+    }
+
     public function actionIndex()
     {
         $loginForm = new LoginForm();

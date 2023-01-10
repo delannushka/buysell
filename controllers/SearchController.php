@@ -5,9 +5,26 @@ namespace app\controllers;
 use app\models\Ticket;
 use Yii;
 use yii\data\ActiveDataProvider;
+use yii\filters\AccessControl;
 
 class SearchController extends \yii\web\Controller
 {
+    public function behaviors()
+    {
+        return [
+            'access' => [
+                'class' => AccessControl::class,
+                'rules' => [
+                    [
+                        'allow'   => true,
+                        'actions' => ['index'],
+                        'roles'   => ['?', '@'],
+                    ],
+                ],
+            ],
+        ];
+    }
+
     function actionIndex()
     {
         $query = Yii::$app->request->get('query');

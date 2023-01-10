@@ -17,8 +17,12 @@ class AuthorRule extends Rule
          * @param array $params parameters passed to ManagerInterface::checkAccess().
          * @return bool a value indicating whether the rule permits the role or permission it is associated with.
          */
-        public function execute($user, $item, $params)
-    {
-        return isset($params['autor_id']) ? $params['autor_id']->createdBy == $user : false;
-    }
+        public function execute($user, $item, $params): bool
+        {
+            if (isset($params['author_id']) AND ($params['author_id'] == $user)) {
+                return true;
+            } else {
+                return false;
+            }
+        }
 }

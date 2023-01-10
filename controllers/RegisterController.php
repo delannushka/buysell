@@ -5,12 +5,33 @@ namespace app\controllers;
 use app\models\User;
 use Yii;
 use yii\base\Exception;
+use yii\filters\AccessControl;
 use yii\web\Controller;
 use app\models\forms\RegisterForm;
 use yii\web\UploadedFile;
 
 class RegisterController extends Controller
 {
+    public function behaviors()
+    {
+        return [
+            'access' => [
+                'class' => AccessControl::class,
+                'denyCallback' => function () {
+                    echo('Вы уже на сайте! Не надо заново регистрироваться=)');
+                },
+                'rules' => [
+                    [
+                        'allow'   => true,
+                        'actions' => ['index'],
+                        'roles'   => ['?'],
+                    ],
+                ],
+            ],
+        ];
+    }
+
+
     /**
      * @throws Exception
      * @throws \Exception
