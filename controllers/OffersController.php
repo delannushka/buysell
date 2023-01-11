@@ -10,6 +10,7 @@ use app\models\Ticket;
 use app\models\TicketCategory;
 use Exception;
 use Yii;
+use yii\base\InvalidConfigException;
 use yii\data\ActiveDataProvider;
 use yii\filters\AccessControl;
 use yii\web\Controller;
@@ -78,42 +79,18 @@ class OffersController extends Controller
     public function actionAdd()
     {
         $newTicket = new TicketForm();
-
         if (Yii::$app->request->getIsPost()) {
             $newTicket->load(Yii::$app->request->post());
-            $newTicket->avatar = UploadedFile::getInstance($newTicket, 'avatar');
-
-            if ($newTicket->validate()) {
-                $ticket = new Ticket();
-                $ticket->user_id = Yii::$app->user->getId();
-                $ticket->header = $newTicket->header;
-                $ticket->text = $newTicket->text;
-                $ticket->price = $newTicket->price;
-                $ticket->type = $newTicket->type;
-                $ticket->photo = UploadFile::upload($newTicket->avatar, 'tickets');
-                $db = Yii::$app->db;
-                $transaction = $db->beginTransaction();
-                try {
-                    $ticket->save();
-                    foreach ($newTicket->categories as $category) {
-                        $ticketCategory = new TicketCategory();
-                        $ticketCategory->ticket_id = $ticket->id;
-                        $ticketCategory->category_id = $category;
-                        $ticketCategory->save();
-                    }
-                    $transaction->commit();
-                } catch (Exception $e) {
-                    $transaction->rollback();
-                    throw new ServerErrorHttpException('Проблема на сервере. Создать объявление не удалось.');
-                }
-                return Yii::$app->response->redirect("/offers/{$ticket->id}");
+            $ticketId = $newTicket->createNewTicket();
+            if ($ticketId){
+                return Yii::$app->response->redirect("/offers/{$ticketId}");
             }
         }
         return $this->render('add-edit', ['model' => $newTicket]);
     }
 
     /**
-     * @throws NotFoundHttpException
+     * @throws NotFoundHttpException|InvalidConfigException
      */
     public function actionCategory($id){
         $category = Category::findOne($id);
@@ -145,58 +122,18 @@ class OffersController extends Controller
     /**
      * @throws Exception
      */
+
     public function actionEdit($id)
     {
         $ticket = Ticket::findOne($id);
-        if(!$ticket){
-            throw new NotFoundHttpException ('Объявление не найдено');
-        }
-        if (Yii::$app->user->can('editAllTickets', ['author_id' => $ticket->user_id])) {
-            $ticketEditForm = new TicketForm();
-            $ticketEditForm->header = $ticket->header;
-            $ticketEditForm->text = $ticket->text;
-            $ticketEditForm->price = $ticket->price;
-            $ticketEditForm->type = $ticket->type;
-            $ticketEditForm->categories = TicketCategory::find()->select('category_id')->where(
-                ['ticket_id' => $ticket->id]
-            )->column();
-            $ticketEditForm->avatar = $ticket->photo;
 
-            if (Yii::$app->request->getIsPost()) {
-                $ticketEditForm->load(Yii::$app->request->post());
-                if ($ticketEditForm->avatar !== $ticket->photo) {
-                    $ticketEditForm->avatar = UploadedFile::getInstance($ticketEditForm, 'avatar');
-                }
-                if ($ticketEditForm->validate()) {
-                    $ticket->header = $ticketEditForm->header;
-                    $ticket->text = $ticketEditForm->text;
-                    $ticket->price = $ticketEditForm->price;
-                    $ticket->type = $ticketEditForm->type;
-                    if ($ticketEditForm->avatar !== $ticket->photo) {
-                        $ticket->photo = UploadFile::upload($ticketEditForm->avatar, 'tickets');
-                    }
-                    $db = Yii::$app->db;
-                    $transaction = $db->beginTransaction();
-                    try {
-                        $ticket->save();
-                        TicketCategory::deleteAll(['ticket_id' => $ticket->id]);
-                        foreach ($ticketEditForm->categories as $category) {
-                            $ticketCategory = new TicketCategory();
-                            $ticketCategory->ticket_id = $ticket->id;
-                            $ticketCategory->category_id = $category;
-                            $ticketCategory->save();
-                        }
-                        $transaction->commit();
-                    } catch (Exception $e) {
-                        $transaction->rollback();
-                        throw new ServerErrorHttpException('Проблема на сервере. Отредактировать объявление не удалось.');
-                    }
-                    return Yii::$app->response->redirect("/offers/{$ticket->id}");
-                }
-            }
-            return $this->render('add-edit', ['model' => $ticketEditForm]);
-        } else {
-            throw new ForbiddenHttpException ('Вам нельзя выполнять данное действие', 403);
+        $ticketEditForm = new TicketForm();
+        $ticketEditForm->autocompleteEditForm($ticket);
+        if (Yii::$app->request->getIsPost()) {
+            $ticketEditForm->load(Yii::$app->request->post());
+            $ticketEditForm->editTicket($ticket);
+            return Yii::$app->response->redirect("/offers/{$ticket->id}");
         }
+        return $this->render('add-edit', ['model' => $ticketEditForm,]);
     }
 }

@@ -80,7 +80,7 @@ use yii\widgets\ActiveForm;
                         ?>
                         <div class="comment-form__header">
                             <a href="#" class="comment-form__avatar avatar">
-                                <img src="<?=Url::to('/uploads/'. Yii::$app->user->identity->avatar) ?>" srcset="<?=Url::to('/uploads/'. Yii::$app->user->identity->avatar) ?>" alt="Аватар пользователя">
+                                <img src="<?=Url::to('/uploads/avatar/'. Yii::$app->user->identity->avatar) ?>" srcset="<?=Url::to('/uploads/avatar/'. Yii::$app->user->identity->avatar) ?>" alt="Аватар пользователя">
                             </a>
                             <p class="comment-form__author">Вам слово</p>
                         </div>
