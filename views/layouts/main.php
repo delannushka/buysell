@@ -4,11 +4,7 @@
 /** @var yii\web\View $content */
 
 use app\assets\AppAsset;
-use app\widgets\Alert;
-use yii\bootstrap5\Breadcrumbs;
 use yii\bootstrap5\Html;
-use yii\bootstrap5\Nav;
-use yii\bootstrap5\NavBar;
 use yii\helpers\Url;
 
 AppAsset::register($this);
@@ -52,8 +48,7 @@ $this->registerLinkTag(['rel' => 'icon', 'type' => 'image/x-icon', 'href' => Yii
         </form>
         <?php if (!Yii::$app->user->isGuest):?>
         <a class="header__avatar avatar" href="#">
-
-            <img src="<?=Url::to('/uploads/'. Yii::$app->user->identity->avatar); ?>" srcset="<?=Url::to('/uploads/'. Yii::$app->user->identity->avatar) ;?>" alt="Аватар пользователя">
+            <img src="<?=Url::to('/uploads/avatar/'. Yii::$app->user->identity->avatar); ?>" srcset="<?=Url::to('/uploads/avatar/'. Yii::$app->user->identity->avatar) ;?>" alt="Аватар пользователя">
         </a>
         <?php endif; ?>
         <a class="header__input" href="<?=URL::to('/login') ?>">Вход и регистрация</a>

@@ -1,6 +1,7 @@
 <?php
 namespace app\models\rbac;
 
+use yii\rbac\Item;
 use yii\rbac\Rule;
 
 class AuthorRule extends Rule

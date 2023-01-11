@@ -2,16 +2,14 @@
 
 /** @var yii\web\View $this */
 
-use app\models\Category;
 use app\models\Ticket;
-use app\models\TicketCategory;
-use delta\TicketHandler;
 use yii\helpers\Url;
 use yii\widgets\ListView;
 
 $this->title = 'Куплю Продам';
 ?>
-<?php if (!Ticket::find()->exists()):?>
+
+<?php if (!Ticket::find()->where(['status' => 1])->exists()):?>
     <div class="message">
         <div class="message__text">
             <p>На сайте еще не опубликовано ни&nbsp;одного объявления.</p>
@@ -30,10 +28,8 @@ $this->title = 'Куплю Продам';
                 'itemView' => '/_list_category',
                 'itemOptions' => ['tag' => false],
                 'layout' => '{items}'
-            ]);
-            ?>
+            ]); ?>
     </section>
-
     <section class="tickets-list">
         <h2 class="visually-hidden">Самые новые предложения</h2>
         <div class="tickets-list__wrapper">
@@ -48,32 +44,26 @@ $this->title = 'Куплю Продам';
                 'itemView' => '/_list_ticket',
                 'itemOptions' => ['tag' => false],
                 'layout' => '{items}'
-            ]);
-            ?>
+            ]); ?>
         </div>
     </section>
-
-    <section class="tickets-list">
-        <h2 class="visually-hidden">Самые обсуждаемые предложения</h2>
-        <div class="tickets-list__wrapper">
-            <div class="tickets-list__header">
-                <p class="tickets-list__title">Самые обсуждаемые</p>
+    <?php if ($popularTicketsProvider->totalCount !== 0): ?>
+        <section class="tickets-list">
+            <h2 class="visually-hidden">Самые обсуждаемые предложения</h2>
+            <div class="tickets-list__wrapper">
+                <div class="tickets-list__header">
+                    <p class="tickets-list__title">Самые обсуждаемые</p>
+                </div>
+                <?=ListView::widget([
+                    'dataProvider' => $popularTicketsProvider,
+                    'options' => [
+                        'tag' => 'ul'
+                    ],
+                    'itemView' => '/_list_ticket',
+                    'itemOptions' => ['tag' => false],
+                    'layout' => '{items}',
+                ]); ?>
             </div>
-            <?=ListView::widget([
-                'dataProvider' => $popularTicketsProvider,
-                'options' => [
-                    'tag' => 'ul'
-                ],
-                'itemView' => '/_list_ticket',
-                'itemOptions' => ['tag' => false],
-                'layout' => '{items}',
-                'emptyText' => 'Объявления отсутствуют',
-                'emptyTextOptions' => [
-                    'tag' => 'div',
-                    'class' => 'comments__message'
-                ]
-            ]);
-            ?>
-        </div>
-    </section>
+        </section>
+    <?php endif; ?>
 <?php endif; ?>

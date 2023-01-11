@@ -3,8 +3,6 @@
 namespace app\models\forms;
 
 use app\models\User;
-use Yii;
-use yii\base\Exception;
 use yii\base\Model;
 use yii\web\UploadedFile;
 
@@ -16,7 +14,7 @@ class RegisterForm extends Model
     public ?string $repeatPassword = null;
 
     /** @var UploadedFile  */
-    public $avatar;
+    public UploadedFile $avatar;
 
     public function attributeLabels(): array
     {
@@ -32,7 +30,7 @@ class RegisterForm extends Model
     public function rules(): array
     {
         return [
-            [['name', 'email', 'password', 'repeatPassword'], 'required'],
+            [['name', 'email', 'password', 'repeatPassword', 'avatar'], 'required'],
             [['name'], 'string'],
             ['email', 'email'],
             ['email', 'unique', 'targetClass' => User::class, 'message' => 'Пользователь с данным Email уже существует'],

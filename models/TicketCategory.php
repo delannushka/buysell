@@ -2,7 +2,8 @@
 
 namespace app\models;
 
-use Yii;
+use yii\db\ActiveQuery;
+use yii\db\ActiveRecord;
 
 /**
  * This is the model class for table "ticket_category".
@@ -13,12 +14,12 @@ use Yii;
  * @property Category $category
  * @property Ticket $ticket
  */
-class TicketCategory extends \yii\db\ActiveRecord
+class TicketCategory extends ActiveRecord
 {
     /**
      * {@inheritdoc}
      */
-    public static function tableName()
+    public static function tableName(): string
     {
         return 'ticket_category';
     }
@@ -26,7 +27,7 @@ class TicketCategory extends \yii\db\ActiveRecord
     /**
      * {@inheritdoc}
      */
-    public function rules()
+    public function rules(): array
     {
         return [
             [['ticket_id', 'category_id'], 'required'],
@@ -40,7 +41,7 @@ class TicketCategory extends \yii\db\ActiveRecord
     /**
      * {@inheritdoc}
      */
-    public function attributeLabels()
+    public function attributeLabels(): array
     {
         return [
             'ticket_id' => 'Ticket ID',
@@ -51,9 +52,9 @@ class TicketCategory extends \yii\db\ActiveRecord
     /**
      * Gets query for [[Category]].
      *
-     * @return \yii\db\ActiveQuery
+     * @return ActiveQuery
      */
-    public function getCategory()
+    public function getCategory(): ActiveQuery
     {
         return $this->hasOne(Category::class, ['id' => 'category_id']);
     }
@@ -61,9 +62,9 @@ class TicketCategory extends \yii\db\ActiveRecord
     /**
      * Gets query for [[Ticket]].
      *
-     * @return \yii\db\ActiveQuery
+     * @return ActiveQuery
      */
-    public function getTicket()
+    public function getTicket(): ActiveQuery
     {
         return $this->hasOne(Ticket::class, ['id' => 'ticket_id']);
     }

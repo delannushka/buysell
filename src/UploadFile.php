@@ -2,10 +2,13 @@
 
 namespace delta;
 
+use yii\web\ServerErrorHttpException;
+
 class UploadFile
 {
+
     /**
-     * @throws \Exception
+     * @throws ServerErrorHttpException
      */
     public static function upload($fileForSave, $direction): string
     {
@@ -13,6 +16,6 @@ class UploadFile
         if ($fileForSave->saveAs("@webroot/uploads/{$direction}/" . $name)) {
             return $name;
         }
-        throw new \Exception("Не удалось сохранить файл");
+        throw new ServerErrorHttpException("Не удалось сохранить файл. Попробуйте еще раз");
     }
 }

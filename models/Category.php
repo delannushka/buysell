@@ -2,7 +2,9 @@
 
 namespace app\models;
 
-use Yii;
+use yii\base\InvalidConfigException;
+use yii\db\ActiveQuery;
+use yii\db\ActiveRecord;
 
 /**
  * This is the model class for table "category".
@@ -13,12 +15,12 @@ use Yii;
  * @property TicketCategory[] $ticketCategories
  * @property Ticket[] $tickets
  */
-class Category extends \yii\db\ActiveRecord
+class Category extends ActiveRecord
 {
     /**
      * {@inheritdoc}
      */
-    public static function tableName()
+    public static function tableName(): string
     {
         return 'category';
     }
@@ -26,7 +28,7 @@ class Category extends \yii\db\ActiveRecord
     /**
      * {@inheritdoc}
      */
-    public function rules()
+    public function rules(): array
     {
         return [
             [['name'], 'required'],
@@ -37,7 +39,7 @@ class Category extends \yii\db\ActiveRecord
     /**
      * {@inheritdoc}
      */
-    public function attributeLabels()
+    public function attributeLabels(): array
     {
         return [
             'id' => 'ID',
@@ -48,9 +50,9 @@ class Category extends \yii\db\ActiveRecord
     /**
      * Gets query for [[TicketCategories]].
      *
-     * @return \yii\db\ActiveQuery
+     * @return ActiveQuery
      */
-    public function getTicketCategories()
+    public function getTicketCategories(): ActiveQuery
     {
         return $this->hasMany(TicketCategory::class, ['category_id' => 'id']);
     }
@@ -58,9 +60,10 @@ class Category extends \yii\db\ActiveRecord
     /**
      * Gets query for [[Tickets]].
      *
-     * @return \yii\db\ActiveQuery
+     * @return ActiveQuery
+     * @throws InvalidConfigException
      */
-    public function getTickets()
+    public function getTickets(): ActiveQuery
     {
         return $this->hasMany(Ticket::class, ['id' => 'ticket_id'])->viaTable('ticket_category', ['category_id' => 'id']);
     }
@@ -71,11 +74,14 @@ class Category extends \yii\db\ActiveRecord
         return $randomTicket->ticket->photo;
     }
 
-    public static function getCategoriesList()
+    public static function getCategoriesList(): array
     {
         return Category::find()->all();
     }
 
+    /**
+     * @throws InvalidConfigException
+     */
     public function getCountTicketsInCategory(){
         return $this->getTickets()->where(['ticket.status' => 1])->count();
     }

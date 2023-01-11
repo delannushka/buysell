@@ -3,11 +3,13 @@
 namespace app\controllers;
 
 use app\models\forms\LoginForm;
-use app\models\rbac\AuthorRule;
 use delta\AuthHandler;
 use Yii;
+use yii\db\Exception;
 use yii\filters\AccessControl;
 use yii\web\Controller;
+use yii\web\ForbiddenHttpException;
+use yii\web\HttpException;
 use yii\web\Response;
 use yii\widgets\ActiveForm;
 
@@ -19,8 +21,7 @@ class LoginController extends Controller
             'access' => [
                 'class' => AccessControl::class,
                 'denyCallback' => function () {
-                    echo('Если вы на сайте - входить заново не надо! 
-                    Если вы не на сайте, не надо пытаться из него выходить!');
+                    throw new ForbiddenHttpException('Данная страница вам не доступна', 403);
                 },
                 'rules' => [
                     [
@@ -65,8 +66,8 @@ class LoginController extends Controller
     }
 
     /**
-     * @throws \yii\db\Exception
-     * @throws \yii\web\HttpException
+     * @throws Exception
+     * @throws HttpException
      */
     public function actionVk()
     {

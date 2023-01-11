@@ -6,8 +6,9 @@ use app\models\Ticket;
 use Yii;
 use yii\data\ActiveDataProvider;
 use yii\filters\AccessControl;
+use yii\web\Controller;
 
-class SearchController extends \yii\web\Controller
+class SearchController extends Controller
 {
     public function behaviors()
     {

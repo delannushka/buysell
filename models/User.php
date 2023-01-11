@@ -2,8 +2,8 @@
 
 namespace app\models;
 
-use Exception;
 use Yii;
+use yii\db\ActiveQuery;
 use yii\db\ActiveRecord;
 use yii\web\IdentityInterface;
 
@@ -14,7 +14,6 @@ use yii\web\IdentityInterface;
  * @property string $name
  * @property string $email
  * @property string $password
- * @property int $moderator
  * @property string|null $avatar
  * @property string|null $date_add
  * @property Comment[] $comments
@@ -26,7 +25,7 @@ class User extends ActiveRecord implements IdentityInterface
     /**
      * {@inheritdoc}
      */
-    public static function tableName()
+    public static function tableName(): string
     {
         return 'user';
     }
@@ -34,11 +33,10 @@ class User extends ActiveRecord implements IdentityInterface
     /**
      * {@inheritdoc}
      */
-    public function rules()
+    public function rules(): array
     {
         return [
             [['name', 'email', 'password'], 'required'],
-            [['moderator'], 'integer'],
             [['date_add'], 'safe'],
             [['name', 'email', 'avatar'], 'string', 'max' => 255],
             [['password'], 'string', 'max' => 64],
@@ -46,24 +44,12 @@ class User extends ActiveRecord implements IdentityInterface
         ];
     }
 
-    /**
-     * @throws Exception
-     */
-    public function uploadAvatar($fileForSave): string
-    {
-        $fileName = uniqid('upload') . '.' . $fileForSave->getExtension();
-        if ($fileForSave->saveAs('@webroot/uploads/' . $fileName)) {
-            return $fileName;
-        }
-        throw new Exception('Ошибка сохранения');
-    }
-
-    /**
-     * Gets query for [[Auths]].
-     *
-     * @return \yii\db\ActiveQuery
-     */
-    public function getAuths()
+   /**
+    * Gets query for [[Auths]].
+    *
+    * @return ActiveQuery
+    */
+    public function getAuths(): ActiveQuery
     {
         return $this->hasMany(Auth::class, ['user_id' => 'id']);
     }
@@ -71,14 +57,13 @@ class User extends ActiveRecord implements IdentityInterface
     /**
      * {@inheritdoc}
      */
-    public function attributeLabels()
+    public function attributeLabels(): array
     {
         return [
             'id' => 'ID',
             'name' => 'Name',
             'email' => 'Email',
             'password' => 'Password',
-            'moderator' => 'Moderator',
             'avatar' => 'Avatar',
             'date_add' => 'Date Add',
         ];
@@ -87,9 +72,9 @@ class User extends ActiveRecord implements IdentityInterface
     /**
      * Gets query for [[Comments]].
      *
-     * @return \yii\db\ActiveQuery
+     * @return ActiveQuery
      */
-    public function getComments()
+    public function getComments(): ActiveQuery
     {
         return $this->hasMany(Comment::class, ['user_id' => 'id']);
     }
@@ -97,9 +82,9 @@ class User extends ActiveRecord implements IdentityInterface
     /**
      * Gets query for [[Tickets]].
      *
-     * @return \yii\db\ActiveQuery
+     * @return ActiveQuery
      */
-    public function getTickets()
+    public function getTickets(): ActiveQuery
     {
         return $this->hasMany(Ticket::class, ['user_id' => 'id']);
     }

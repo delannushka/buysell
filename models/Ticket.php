@@ -2,10 +2,13 @@
 
 namespace app\models;
 
+use Exception;
 use Yii;
+use yii\base\InvalidConfigException;
 use yii\data\ActiveDataProvider;
-use yii\data\Pagination;
 use yii\db\ActiveQuery;
+use yii\db\ActiveRecord;
+use yii\web\ServerErrorHttpException;
 
 /**
  * This is the model class for table "ticket".
@@ -25,12 +28,12 @@ use yii\db\ActiveQuery;
  * @property TicketCategory[] $ticketCategories
  * @property User $user
  */
-class Ticket extends \yii\db\ActiveRecord
+class Ticket extends ActiveRecord
 {
     /**
      * {@inheritdoc}
      */
-    public static function tableName()
+    public static function tableName(): string
     {
         return 'ticket';
     }
@@ -38,7 +41,7 @@ class Ticket extends \yii\db\ActiveRecord
     /**
      * {@inheritdoc}
      */
-    public function rules()
+    public function rules(): array
     {
         return [
             [['status', 'user_id', 'price'], 'integer'],
@@ -55,7 +58,7 @@ class Ticket extends \yii\db\ActiveRecord
     /**
      * {@inheritdoc}
      */
-    public function attributeLabels()
+    public function attributeLabels(): array
     {
         return [
             'id' => 'ID',
@@ -74,8 +77,9 @@ class Ticket extends \yii\db\ActiveRecord
      * Gets query for [[Categories]].
      *
      * @return ActiveQuery
+     * @throws InvalidConfigException
      */
-    public function getCategories()
+    public function getCategories(): ActiveQuery
     {
         return $this->hasMany(Category::class, ['id' => 'category_id'])->viaTable('ticket_category', ['ticket_id' => 'id']);
     }
@@ -85,7 +89,7 @@ class Ticket extends \yii\db\ActiveRecord
      *
      * @return ActiveQuery
      */
-    public function getComments()
+    public function getComments(): ActiveQuery
     {
         return $this->hasMany(Comment::class, ['ticket_id' => 'id']);
     }
@@ -95,7 +99,7 @@ class Ticket extends \yii\db\ActiveRecord
      *
      * @return ActiveQuery
      */
-    public function getTicketCategories()
+    public function getTicketCategories(): ActiveQuery
     {
         return $this->hasMany(TicketCategory::class, ['ticket_id' => 'id']);
     }
@@ -105,12 +109,12 @@ class Ticket extends \yii\db\ActiveRecord
      *
      * @return ActiveQuery
      */
-    public function getUser()
+    public function getUser(): ActiveQuery
     {
         return $this->hasOne(User::class, ['id' => 'user_id']);
     }
 
-    public static function getAllByCategory(Category $category)
+    public static function getAllByCategory(Category $category): ActiveDataProvider
     {
         $query = Ticket::find()
             ->select('id, status, header, photo, price, type, text, ticket_category.category_id as category_id')
@@ -134,25 +138,25 @@ class Ticket extends \yii\db\ActiveRecord
     }
 
     /**
-     * @throws \Exception
+     * @throws ServerErrorHttpException
      */
-    public function deleteTicket(){
-        $this->status = 0;
-        //$ticketCategories = $this->ticketCategories;
-
-        $comments = $this->comments;
-        foreach ($comments as $comment){
-            $comment->status = 0;
-            if(!$comment->save()){
-                throw new \Exception('ошибка сохранения в БД');
-            };
+    public function deleteTicket(): bool
+    {
+        $db = Yii::$app->db;
+        $transaction = $db->beginTransaction();
+        try {
+            $this->status = 0;
+            $comments = $this->comments;
+            foreach ($comments as $comment) {
+                $comment->deleteComment();
+            }
+            $this->save();
+            $transaction->commit();
+        } catch (Exception $e){
+            $transaction->rollback();
+            throw new ServerErrorHttpException('Проблема на сервере. Объявление удалить не удалилось.');
         }
-        if ($this->save()){
-            return true;
-        }
-        else {
-            return throw new \Exception('Не удалось внести изменеия в базу');
-        }
+        return true;
     }
 
 }

@@ -2,7 +2,11 @@
 
 namespace app\models;
 
+use Exception;
 use Yii;
+use yii\db\ActiveQuery;
+use yii\db\ActiveRecord;
+use yii\web\ServerErrorHttpException;
 
 /**
  * This is the model class for table "comment".
@@ -17,12 +21,12 @@ use Yii;
  * @property Ticket $ticket
  * @property User $user
  */
-class Comment extends \yii\db\ActiveRecord
+class Comment extends ActiveRecord
 {
     /**
      * {@inheritdoc}
      */
-    public static function tableName()
+    public static function tableName(): string
     {
         return 'comment';
     }
@@ -30,7 +34,7 @@ class Comment extends \yii\db\ActiveRecord
     /**
      * {@inheritdoc}
      */
-    public function rules()
+    public function rules(): array
     {
         return [
             [['user_id', 'ticket_id', 'text'], 'required'],
@@ -45,7 +49,7 @@ class Comment extends \yii\db\ActiveRecord
     /**
      * {@inheritdoc}
      */
-    public function attributeLabels()
+    public function attributeLabels(): array
     {
         return [
             'id' => 'ID',
@@ -60,9 +64,9 @@ class Comment extends \yii\db\ActiveRecord
     /**
      * Gets query for [[Ticket]].
      *
-     * @return \yii\db\ActiveQuery
+     * @return ActiveQuery
      */
-    public function getTicket()
+    public function getTicket(): ActiveQuery
     {
         return $this->hasOne(Ticket::class, ['id' => 'ticket_id']);
     }
@@ -70,24 +74,25 @@ class Comment extends \yii\db\ActiveRecord
     /**
      * Gets query for [[User]].
      *
-     * @return \yii\db\ActiveQuery
+     * @return ActiveQuery
      */
-    public function getUser()
+    public function getUser(): ActiveQuery
     {
         return $this->hasOne(User::class, ['id' => 'user_id']);
     }
 
+
     /**
-     * @throws \Exception
+     * @throws ServerErrorHttpException
      */
-    public function deleteComment()
+    public function deleteComment(): bool
     {
         $this->status = 0;
         if ($this->save()){
             return true;
         }
         else {
-            return throw new \Exception('Не удалось внести изменеия в базу');
+            return throw new ServerErrorHttpException('Проблема на сервере. Комментарий удалить не удалилось.');
         }
     }
 }

@@ -4,7 +4,6 @@ namespace app\controllers;
 
 use app\models\Category;
 use app\models\Ticket;
-use Yii;
 use yii\data\ActiveDataProvider;
 use yii\filters\AccessControl;
 use yii\web\Controller;
@@ -21,7 +20,7 @@ class SiteController extends Controller
                 'rules' => [
                     [
                         'allow'   => true,
-                        'actions' => ['index'],
+                        'actions' => ['index', 'error'],
                         'roles'   => ['?', '@'],
                     ],
                 ],
@@ -29,11 +28,15 @@ class SiteController extends Controller
         ];
     }
 
-    /**
-     * Displays homepage.
-     *
-     * @return string
-     */
+    public function actions(): array
+    {
+        return [
+            'error' => [
+                'class' => 'yii\web\ErrorAction',
+            ],
+        ];
+    }
+
     public function actionIndex()
     {
         $freshTicketsProvider = new ActiveDataProvider([

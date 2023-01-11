@@ -3,22 +3,25 @@
 namespace app\controllers;
 
 use app\models\User;
+use delta\UploadFile;
 use Yii;
 use yii\base\Exception;
 use yii\filters\AccessControl;
 use yii\web\Controller;
 use app\models\forms\RegisterForm;
+use yii\web\ForbiddenHttpException;
+use yii\web\ServerErrorHttpException;
 use yii\web\UploadedFile;
 
 class RegisterController extends Controller
 {
-    public function behaviors()
+    public function behaviors(): array
     {
         return [
             'access' => [
                 'class' => AccessControl::class,
                 'denyCallback' => function () {
-                    echo('Вы уже на сайте! Не надо заново регистрироваться=)');
+                    throw new ForbiddenHttpException('Вы уже на сайте. Регистрироваться заново не нужно.', 403);
                 },
                 'rules' => [
                     [
@@ -47,13 +50,21 @@ class RegisterController extends Controller
                 $user->name = $registerForm->name;
                 $user->email = $registerForm->email;
                 $user->password = Yii::$app->getSecurity()->generatePasswordHash($registerForm->password);
-                $user->avatar = $user->uploadAvatar($registerForm->avatar);
+                $user->avatar = UploadFile::upload($registerForm->avatar, 'avatar');
                 if ($user->validate()){
-                    $user->save();
-                    //по умолчанию пользователь становится обладателем роли author
-                    $auth = Yii::$app->authManager;
-                    $authorRole = $auth->getRole('user');
-                    $auth->assign($authorRole, $user->id);
+                    $db = Yii::$app->db;
+                    $transaction = $db->beginTransaction();
+                    try {
+                        $user->save();
+                        //по умолчанию пользователь становится обладателем роли user
+                        $auth = Yii::$app->authManager;
+                        $authorRole = $auth->getRole('user');
+                        $auth->assign($authorRole, $user->id);
+                        $transaction->commit();
+                    } catch (Exception $e){
+                        $transaction->rollback();
+                        throw new ServerErrorHttpException('Проблема на сервере. Зарегистрироваться не удалось.');
+                    }
                 }
                 return Yii::$app->response->redirect('/login');
             }

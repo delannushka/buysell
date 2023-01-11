@@ -8,6 +8,9 @@ use Yii;
 use yii\data\ActiveDataProvider;
 use yii\filters\AccessControl;
 use yii\web\Controller;
+use yii\web\ForbiddenHttpException;
+use yii\web\NotFoundHttpException;
+use yii\web\ServerErrorHttpException;
 
 class MyController extends Controller
 {
@@ -28,10 +31,9 @@ class MyController extends Controller
         ];
     }
 
-    public function actionIndex(){
-
-        $id = \Yii::$app->user->id;
-
+    public function actionIndex()
+    {
+        $id = Yii::$app->user->id;
         $myTicketsProvider = new ActiveDataProvider([
             'query' => Ticket::find()
             ->where([
@@ -39,8 +41,6 @@ class MyController extends Controller
                 'status' => 1
             ])
         ]);
-
-
         return $this->render('index', [
             'myTicketsProvider' => $myTicketsProvider
         ]);
@@ -66,36 +66,47 @@ class MyController extends Controller
         ]);
     }
 
+
     /**
-     * @throws \yii\db\StaleObjectException
-     * @throws \Throwable
+     * @throws ForbiddenHttpException
+     * @throws ServerErrorHttpException
+     * @throws NotFoundHttpException
      */
     public function actionDelete($id){
         $ticket = Ticket::findOne($id);
+        if (!$ticket){
+            throw new NotFoundHttpException ('Объявление не найдено');
+        }
         if (Yii::$app->user->can('editAllTickets', ['author_id' => $ticket->user_id])) {
             if ($ticket->deleteTicket()) {
                 return $this->redirect('/my');
             } else {
-                throw new \Exception('Не удалось удалить объявдение');
+                throw new ServerErrorHttpException ('Ошибка сервера', 500);
             }
         } else {
-            return 'НЕ ВАШЕ ОБЪЯВЛЕНИЕ';
+            throw new ForbiddenHttpException ('Вам нельзя выполнять данной действие', 403);
         }
     }
 
+
     /**
-     * @throws \Exception
+     * @throws ForbiddenHttpException
+     * @throws ServerErrorHttpException
+     * @throws NotFoundHttpException
      */
     public function actionCommentout($id){
         $comment = Comment::findOne($id);
+        if (!$comment){
+            throw new NotFoundHttpException ('Объявление не найдено');
+        }
         if (Yii::$app->user->can('editAllTickets', ['author_id' => $comment->ticket->user_id])) {
             if ($comment->deleteComment()) {
                 return $this->redirect('/my/comments');
             } else {
-                throw new \Exception('Не удалось удалить комментарий');
+                throw new ServerErrorHttpException ('Ошибка сервера', 500);
             }
         } else {
-            return 'НЕ ВАШЕ ОБЪЯВЛЕНИЕ';
+            throw new ForbiddenHttpException ('Вам нельзя выполнять данное действие', 403);
         }
     }
 }

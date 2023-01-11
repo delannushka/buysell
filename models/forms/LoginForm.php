@@ -20,7 +20,7 @@ class LoginForm extends Model
     }
 
 
-    public function rules()
+    public function rules(): array
     {
         return [
             [['email', 'password'], 'required'],
@@ -28,7 +28,7 @@ class LoginForm extends Model
         ];
     }
 
-    public function getUser()
+    public function getUser(): ?User
     {
         if ($this->_user === null) {
             $this->_user = User::findOne(['email' => $this->email]);
