@@ -59,12 +59,11 @@ class OffersController extends Controller
             $newComment->load(Yii::$app->request->post());
             if ($newComment->validate()){
                 $comment = new Comment();
-                $comment->user_id = Yii::$app->user->id;
-                $comment->ticket_id = $ticket->id;
-                $comment->text = $newComment->comment;
+                $comment->saveComment($ticket,$newComment->comment);
                 if (!$comment->save()){
-                    throw new Exception('Ошибка загрузки');
+                    throw new ServerErrorHttpException('Проблема на сервере. Комментарий сохранить не удалилось.');
                 }
+                return Yii::$app->response->redirect("/offers/{$id}");
             }
         }
         return $this->render('view', [
@@ -99,13 +98,10 @@ class OffersController extends Controller
         }
         $totalCountTickets = $category->getCountTicketsInCategory();
         $dataProvider = new ActiveDataProvider([
-            'query' => Ticket::find()
-                ->select('id, status, header, photo, price, type, text, ticket_category.category_id as category_id')
-                ->leftJoin('ticket_category', 'ticket_category.ticket_id = ticket_id')
-                ->having('ticket.status = 1 and ticket_category.category_id = ' . $category->id),
+            'query' => Ticket::queryTicketsInCategory($category->id),
             'totalCount' => $totalCountTickets,
             'pagination' => [
-                'pageSize' => 1,
+                'pageSize' => 8,
                 'pageSizeParam' => false,
                 'forcePageParam' => false
             ]]

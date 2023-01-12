@@ -114,27 +114,54 @@ class Ticket extends ActiveRecord
         return $this->hasOne(User::class, ['id' => 'user_id']);
     }
 
-    public static function getAllByCategory(Category $category): ActiveDataProvider
+    public static function queryFreshTickets(): ActiveQuery
     {
-        $query = Ticket::find()
-            ->select('id, status, header, photo, price, type, text, ticket_category.category_id as category_id')
-            ->leftJoin('ticket_category', 'ticket_category.ticket_id = ticket_id')
-            ->having('ticket.status = 1 and ticket_category.category_id = ' . $category->id);
+        return Ticket::find()->where(['status' => 1])->orderBy('date_add DESC');
+    }
 
-        return new ActiveDataProvider([
-            'query' => $query,
-            'totalCount' => $query->count(),
-            'pagination' => [
-                'pageSize' => 8,
-                'forcePageParam' => false,
-                'pageSizeParam' => false
-            ],
-            'sort' => [
-                'defaultOrder' => [
-                    'id' => SORT_DESC
-                ]
-            ],
-        ]);
+    public static function queryPopularTickets(): ActiveQuery
+    {
+        return
+            Ticket::find()
+                ->join('LEFT JOIN', 'comment', 'comment.ticket_id = ticket.id')
+                ->groupBy('ticket.id')
+                ->having('COUNT(comment.id) > 0 AND status = 1')
+                ->orderBy('COUNT(comment.id) DESC');
+    }
+
+    public static function queryTicketsInCategory($categoryId): ActiveQuery
+    {
+        return
+            Ticket::find()
+                ->select('id, status, header, photo, price, type, text, ticket_category.category_id as category_id')
+                ->leftJoin('ticket_category', 'ticket_category.ticket_id = ticket.id')
+                ->having('ticket.status = 1 and ticket_category.category_id = ' . $categoryId)
+                ->orderBy('ticket.id DESC');
+    }
+
+    public static function queryMyTicketsWithComments($userId): ActiveQuery
+    {
+        return
+            Ticket::find()
+                ->leftJoin('comment', 'comment.ticket_id = ticket.id')
+                ->where([
+                    'ticket.user_id' => $userId,
+                    'ticket.status' => 1,
+                    'comment.status' => 1])
+                ->groupBy('ticket.id')
+                ->having('COUNT(comment.id) > 0')
+                ->orderBy('MAX(comment.id) DESC');
+    }
+
+    public static function queryMyTickets($userId): ActiveQuery
+    {
+        return
+            Ticket::find()
+                ->where([
+                    'user_id' => $userId,
+                    'status' => 1
+                ])
+                ->orderBy('id DESC');
     }
 
     /**

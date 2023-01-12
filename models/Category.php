@@ -86,5 +86,14 @@ class Category extends ActiveRecord
         return $this->getTickets()->where(['ticket.status' => 1])->count();
     }
 
+    public static function queryCategoryList()
+    {
+        return
+            Category::find()
+                ->select('id, name, COUNT(ticket_category.category_id) as count')
+                ->join('LEFT JOIN', 'ticket_category', 'ticket_category.category_id = category.id')
+                ->groupBy('category.id')
+                ->having('COUNT(ticket_category.category_id) > 0');
+    }
 }
 

@@ -103,7 +103,7 @@ use yii\widgets\ActiveForm;
                             <div class="comment-card">
                                 <div class="comment-card__header">
                                     <a href="#" class="comment-card__avatar avatar">
-                                        <img src="<?=Url::to('/uploads/'. $comment->user->avatar) ;?>" srcset="<?=Url::to('/uploads/'. $comment->user->avatar) ;?> 2x" alt="Аватар пользователя">
+                                        <img src="<?=Url::to('/uploads/avatar/'. $comment->user->avatar) ;?>" srcset="<?=Url::to('/uploads/avatar/'. $comment->user->avatar) ;?> 2x" alt="Аватар пользователя">
                                     </a>
                                     <p class="comment-card__author"><?=$comment->user->name; ?></p>
                                 </div>

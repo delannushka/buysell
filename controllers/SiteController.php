@@ -40,26 +40,18 @@ class SiteController extends Controller
     public function actionIndex()
     {
         $freshTicketsProvider = new ActiveDataProvider([
-            'query' => Ticket::find()->where(['status' => 1])->orderBy('date_add DESC')->limit(self::LIMIT_TICKETS),
+            'query' => Ticket::queryFreshTickets(),
+            'pagination' => ['pageSize' => 8] // автоматически будет переписывать лимит на 8
         ]);
 
         $popularTicketsProvider = new ActiveDataProvider([
-            'query' => Ticket::find()
-                ->join('LEFT JOIN', 'comment', 'comment.ticket_id = ticket.id')
-                ->groupBy('ticket.id')
-                ->having('COUNT(comment.id) > 0 AND status = 1')
-                ->orderBy('COUNT(comment.id) DESC')
-                ->limit(self::LIMIT_TICKETS),
+            'query' => Ticket::queryPopularTickets(),
+            'pagination' => ['pageSize' => 8] // автоматически будет переписывать лимит на 8
         ]);
 
         $mainCategoriesProvider = new ActiveDataProvider([
-            'query' => Category::find()
-                ->select('id, name, COUNT(ticket_category.category_id) as count')
-                ->join('LEFT JOIN', 'ticket_category', 'ticket_category.category_id = category.id')
-                ->groupBy('category.id')
-                ->having('COUNT(ticket_category.category_id) > 0')
-            ]
-        );
+            'query' => Category::queryCategoryList(),
+        ]);
 
         return $this->render('index',
             [

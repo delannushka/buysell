@@ -35,11 +35,7 @@ class MyController extends Controller
     {
         $id = Yii::$app->user->id;
         $myTicketsProvider = new ActiveDataProvider([
-            'query' => Ticket::find()
-            ->where([
-                'user_id' => $id,
-                'status' => 1
-            ])
+            'query' => Ticket::queryMyTickets($id)
         ]);
         return $this->render('index', [
             'myTicketsProvider' => $myTicketsProvider
@@ -50,16 +46,7 @@ class MyController extends Controller
     {
         $userId = Yii::$app->user->id;
         $ticketProvider = new ActiveDataProvider([
-            'query' => Ticket::find()
-                ->leftJoin('comment', 'comment.ticket_id = ticket.id')
-                ->where([
-                    'ticket.user_id' => $userId,
-                    'ticket.status' => 1,
-                    'comment.status' => 1
-                ])
-                ->groupBy('ticket.id')
-                ->having('COUNT(comment.id) > 0')
-                ->orderBy('MAX(comment.id) DESC')
+            'query' => Ticket::queryMyTicketsWithComments($userId)
         ]);
         return $this->render('comments', [
             'ticketProvider' => $ticketProvider

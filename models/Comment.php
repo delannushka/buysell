@@ -2,6 +2,7 @@
 
 namespace app\models;
 
+use app\models\forms\CommentForm;
 use Exception;
 use Yii;
 use yii\db\ActiveQuery;
@@ -92,7 +93,14 @@ class Comment extends ActiveRecord
             return true;
         }
         else {
-            return throw new ServerErrorHttpException('Проблема на сервере. Комментарий удалить не удалилось.');
+            throw new ServerErrorHttpException('Проблема на сервере. Комментарий удалить не удалилось.');
         }
+    }
+
+    public function saveComment(Ticket $ticket, $commentText)
+    {
+        $this->user_id = Yii::$app->user->id;
+        $this->ticket_id = $ticket->id;
+        $this->text = $commentText;
     }
 }

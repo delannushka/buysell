@@ -3,7 +3,11 @@
 namespace app\models\forms;
 
 use app\models\User;
+use delta\UploadFile;
+use Yii;
+use yii\base\Exception;
 use yii\base\Model;
+use yii\web\ServerErrorHttpException;
 use yii\web\UploadedFile;
 
 class RegisterForm extends Model
@@ -14,7 +18,7 @@ class RegisterForm extends Model
     public ?string $repeatPassword = null;
 
     /** @var UploadedFile  */
-    public UploadedFile $avatar;
+    public $avatar = '';
 
     public function attributeLabels(): array
     {
@@ -23,7 +27,7 @@ class RegisterForm extends Model
             'email' => 'Эл.почта',
             'password' => 'Пароль',
             'repeatPassword' => 'Пароль еще раз',
-            'avatar' => '',
+            'avatar' => 'Аватар',
         ];
     }
 
@@ -39,4 +43,33 @@ class RegisterForm extends Model
             [['avatar'], 'file', 'extensions' => 'png, jpg'],
         ];
     }
+
+    /**
+     * @throws Exception
+     * @throws ServerErrorHttpException
+     */
+    public function createNewUser()
+{
+    $user = new User();
+    $user->name = $this->name;
+    $user->email = $this->email;
+    $user->password = Yii::$app->getSecurity()->generatePasswordHash($this->password);
+    $user->avatar = UploadFile::upload($this->avatar, 'avatar');
+    if ($user->validate()){
+        $db = Yii::$app->db;
+        $transaction = $db->beginTransaction();
+        try {
+            $user->save();
+            //по умолчанию пользователь становится обладателем роли user
+            $auth = Yii::$app->authManager;
+            $authorRole = $auth->getRole('user');
+            $auth->assign($authorRole, $user->id);
+            $transaction->commit();
+        } catch (Exception $e){
+            $transaction->rollback();
+            throw new ServerErrorHttpException('Проблема на сервере. Зарегистрироваться не удалось.');
+        }
+    }
+}
+
 }
