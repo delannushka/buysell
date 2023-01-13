@@ -1,8 +1,11 @@
 <?php
 /** @var yii\web\View $this */
+/** @var ActiveDataProvider $ticketProvider */
 
+use yii\data\ActiveDataProvider;
 use yii\widgets\ListView;
 
+$this->title = 'Комментарии к публикациям'
 ?>
 
 <section class="comments">
@@ -24,7 +27,6 @@ use yii\widgets\ListView;
                 'tag' => 'p',
                 'class' => 'comments__message'
             ]
-        ])
-        ?>
+        ]); ?>
     </div>
 </section>

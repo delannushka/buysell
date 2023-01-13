@@ -5,7 +5,6 @@ namespace app\models;
 use Exception;
 use Yii;
 use yii\base\InvalidConfigException;
-use yii\data\ActiveDataProvider;
 use yii\db\ActiveQuery;
 use yii\db\ActiveRecord;
 use yii\web\ServerErrorHttpException;

@@ -1,11 +1,12 @@
 <?php
 
+/** @var Ticket $model */
+
+use app\models\Ticket;
 use delta\TicketHandler;
 use yii\helpers\Html;
 use yii\helpers\Url;
-
 ?>
-
 
 <li class="tickets-list__item js-card">
     <div class="ticket-card ticket-card--color06">
@@ -27,8 +28,6 @@ use yii\helpers\Url;
                 <p class="ticket-card__price"><span class="js-sum"><?=$model->price; ?></span> ₽</p>
             </div>
         </div>
-        <?php
-            echo Html::a('Удалить', Url::to(['my/delete/'. $model->id]), ['class'=>'ticket-card__del js-delete']);
-        ?>
+        <?=Html::a('Удалить', Url::to(['my/delete/'. $model->id]), ['class'=>'ticket-card__del js-delete']); ?>
     </div>
 </li>

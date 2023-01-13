@@ -1,8 +1,15 @@
 <?php
 
+/** @var yii\web\View $this */
+/** @var ActiveDataProvider $searchTicketsProvider */
+/** @var ActiveDataProvider $freshTicketsProvider */
+
+use yii\data\ActiveDataProvider;
 use yii\widgets\ListView;
 
+$this->title = 'Результаты поиска'
 ?>
+
 <section class="search-results">
     <h1 class="visually-hidden">Результаты поиска</h1>
     <?=ListView::widget([
@@ -44,7 +51,6 @@ use yii\widgets\ListView;
             'itemView' => '/_list_ticket',
             'itemOptions' => ['tag' => false],
             'layout' => '{items}'
-        ]);
-        ?>
+        ]); ?>
     </div>
 </section>

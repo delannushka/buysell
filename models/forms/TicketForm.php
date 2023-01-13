@@ -118,6 +118,7 @@ class TicketForm extends Model
             $ticket->type = $this->type;
             //если поменяли фото
             if ($this->avatar) {
+                //unlink('/web/uploads/tickets/' . $ticket->photo);
                 $ticket->photo = UploadFile::upload($this->avatar, 'tickets');
             }
             $db = Yii::$app->db;

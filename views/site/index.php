@@ -1,8 +1,12 @@
 <?php
 
 /** @var yii\web\View $this */
+/** @var ActiveDataProvider $mainCategoriesProvider */
+/** @var ActiveDataProvider $freshTicketsProvider */
+/** @var ActiveDataProvider $popularTicketsProvider */
 
 use app\models\Ticket;
+use yii\data\ActiveDataProvider;
 use yii\helpers\Url;
 use yii\widgets\ListView;
 

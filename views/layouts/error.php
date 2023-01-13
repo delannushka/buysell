@@ -2,7 +2,7 @@
 
 /** @var yii\web\View $this */
 /** @var yii\web\View $content */
-/** @var Exception$exception */
+/** @var Exception $exception */
 
 use app\assets\AppAsset;
 
@@ -20,8 +20,7 @@ if ($exception->statusCode < 500) {
 } else {
     $htmlClass = "html-server";
     $bodyClass = "body-server";
-}
-?>
+} ?>
 
 <?php $this->beginPage() ?>
 <!DOCTYPE html>

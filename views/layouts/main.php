@@ -12,20 +12,18 @@ $this->registerCsrfMetaTags();
 $this->registerMetaTag(['charset' => Yii::$app->charset], 'charset');
 $this->registerMetaTag(['name' => 'viewport', 'content' => 'width=device-width, initial-scale=1, shrink-to-fit=no']);
 $this->registerMetaTag(['name' => 'description', 'content' => "Доска объявлений — современный веб-сайт, упрощающий продажу или покупку абсолютно любых вещей." ?? '']);
-// пока закомментрую
-//$this->registerMetaTag(['name' => 'keywords', 'content' => $this->params['meta_keywords'] ?? '']);
 $this->registerLinkTag(['rel' => 'icon', 'type' => 'image/x-icon', 'href' => Yii::getAlias('@web/img/favicon.ico')]);?>
 
 <?php $this->beginPage() ?>
 <!DOCTYPE html>
-<html lang="<?= Yii::$app->language ?>">
+<html lang="<?=Yii::$app->language; ?>">
 <head>
-    <title><?= Html::encode($this->title) ?></title>
+    <title><?=Html::encode($this->title) ?></title>
     <?php $this->head() ?>
 </head>
+
 <body>
 <?php $this->beginBody() ?>
-
 <header class="header <?php if (!Yii::$app->user->isGuest): echo 'header--logged'; endif; ?>">
     <div class="header__wrapper">
         <a class="header__logo logo" href="<?=Url::to(['/']) ?>">
@@ -46,9 +44,9 @@ $this->registerLinkTag(['rel' => 'icon', 'type' => 'image/x-icon', 'href' => Yii
             <div class="search__icon"></div>
             <div class="search__close-btn"></div>
         </form>
-        <?php if (!Yii::$app->user->isGuest):?>
+        <?php if (!Yii::$app->user->isGuest): ?>
         <a class="header__avatar avatar" href="#">
-            <img src="<?=Url::to('/uploads/avatar/'. Yii::$app->user->identity->avatar); ?>" srcset="<?=Url::to('/uploads/avatar/'. Yii::$app->user->identity->avatar) ;?>" alt="Аватар пользователя">
+            <img src="<?=Url::to('/uploads/avatar/'.  Yii::$app->user->identity->avatar); ?>" srcset="<?=Url::to('/uploads/avatar/'. Yii::$app->user->identity->avatar) ;?>" alt="Аватар пользователя">
         </a>
         <?php endif; ?>
         <a class="header__input" href="<?=URL::to('/login') ?>">Вход и регистрация</a>
@@ -56,7 +54,7 @@ $this->registerLinkTag(['rel' => 'icon', 'type' => 'image/x-icon', 'href' => Yii
 </header>
 
 <main class="page-content">
-    <?= $content ?>
+    <?= $content; ?>
 </main>
 
 <footer class="page-footer">
@@ -77,13 +75,13 @@ $this->registerLinkTag(['rel' => 'icon', 'type' => 'image/x-icon', 'href' => Yii
         <div class="page-footer__col">
             <ul class="page-footer__nav">
                 <?php if (Yii::$app->user->isGuest): ?>
-                <li>
-                    <a href="<?=URL::to('/login') ?>">Вход и регистрация</a>
-                </li>
+                    <li>
+                        <a href="<?=URL::to('/login') ?>">Вход и регистрация</a>
+                    </li>
                 <?php else: ?>
-                <li>
-                    <a href="<?=URL::to('/login/logout') ?>">Выйти</a>
-                </li>
+                    <li>
+                        <a href="<?=URL::to('/login/logout') ?>">Выйти</a>
+                    </li>
                 <?php endif; ?>
                 <li>
                     <a href="<?=URL::to('/offers/add') ?>">Создать объявление</a>

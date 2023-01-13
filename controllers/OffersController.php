@@ -7,18 +7,14 @@ use app\models\Comment;
 use app\models\forms\CommentForm;
 use app\models\forms\TicketForm;
 use app\models\Ticket;
-use app\models\TicketCategory;
 use Exception;
 use Yii;
 use yii\base\InvalidConfigException;
 use yii\data\ActiveDataProvider;
 use yii\filters\AccessControl;
 use yii\web\Controller;
-use yii\web\ForbiddenHttpException;
 use yii\web\NotFoundHttpException;
 use yii\web\ServerErrorHttpException;
-use yii\web\UploadedFile;
-use delta\UploadFile;
 
 class OffersController extends Controller
 {
