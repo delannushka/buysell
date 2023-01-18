@@ -68,4 +68,20 @@ class TicketCategory extends ActiveRecord
     {
         return $this->hasOne(Ticket::class, ['id' => 'ticket_id']);
     }
+
+    /**
+     * Метод добавления записей в связывающую таблицу TicketCategory
+     *
+     * @param array $idCategories - массив id категорий для выбранного объявления
+     * @param Ticket $ticket - Объявление, для которого добавляем эти записи
+     */
+    public static function saveTicketCategory(array $idCategories, Ticket $ticket): void
+    {
+        foreach ($idCategories as $idCategory) {
+            $ticketCategory = new TicketCategory();
+            $ticketCategory->ticket_id = $ticket->id;
+            $ticketCategory->category_id = $idCategory;
+            $ticketCategory->save();
+        }
+    }
 }

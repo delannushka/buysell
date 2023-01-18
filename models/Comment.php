@@ -2,8 +2,6 @@
 
 namespace app\models;
 
-use app\models\forms\CommentForm;
-use Exception;
 use Yii;
 use yii\db\ActiveQuery;
 use yii\db\ActiveRecord;
@@ -82,8 +80,10 @@ class Comment extends ActiveRecord
         return $this->hasOne(User::class, ['id' => 'user_id']);
     }
 
-
     /**
+     * Метод удаления комментария со страницы объявления
+     *
+     * @return bool
      * @throws ServerErrorHttpException
      */
     public function deleteComment(): bool
@@ -97,10 +97,23 @@ class Comment extends ActiveRecord
         }
     }
 
-    public function saveComment(Ticket $ticket, $commentText)
+    /**
+     * Метод сохранения комментария к объявлению
+     *
+     * @param Ticket $ticket - объявление
+     * @param string $commentText - текст комментария
+     * @return bool
+     * @throws ServerErrorHttpException
+     */
+    public function saveComment(Ticket $ticket, string $commentText): bool
     {
         $this->user_id = Yii::$app->user->id;
         $this->ticket_id = $ticket->id;
         $this->text = $commentText;
+        if($this->save()) {
+            return true;
+        } else {
+            throw new ServerErrorHttpException('Проблема на сервере. Комментарий сохранить не удалилось.');
+        }
     }
 }

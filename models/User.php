@@ -3,6 +3,7 @@
 namespace app\models;
 
 use Yii;
+use yii\base\Exception;
 use yii\db\ActiveQuery;
 use yii\db\ActiveRecord;
 use yii\web\IdentityInterface;
@@ -89,17 +90,6 @@ class User extends ActiveRecord implements IdentityInterface
         return $this->hasMany(Ticket::class, ['user_id' => 'id']);
     }
 
-    /**
-     * @throws \yii\base\Exception
-     */
-    public function loadAuthUser($userVk): void
-    {
-        $this->email = $userVk['email'];
-        $this->name = $userVk['first_name'] . ' ' . $userVk['last_name'];
-        $this->avatar = $userVk['photo'];
-        $this->password = Yii::$app->security->generateRandomString(6);
-    }
-
     public static function findIdentity($id)
     {
         return self::findOne($id);
@@ -123,5 +113,18 @@ class User extends ActiveRecord implements IdentityInterface
     public function validateAuthKey($authKey)
     {
         return null;
+    }
+
+    /**
+     * Метод сохранения данных юзера, выполнившего вход на сайт через VK в таблицу User
+     *
+     * @throws Exception
+     */
+    public function loadAuthUser($userVk): void
+    {
+        $this->email = $userVk['email'];
+        $this->name = $userVk['first_name'] . ' ' . $userVk['last_name'];
+        $this->avatar = $userVk['photo'];
+        $this->password = Yii::$app->security->generateRandomString(6);
     }
 }

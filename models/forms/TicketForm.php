@@ -60,9 +60,12 @@ class TicketForm extends Model
     }
 
     /**
+     * Метод создания нового объявления. Возвращает false, либо id объявления
+     *
+     * @return bool|int
      * @throws ServerErrorHttpException
      */
-    public function createNewTicket()
+    public function createNewTicket(): bool|int
     {
         $this->avatar = UploadedFile::getInstance($this, 'avatar');
 
@@ -78,12 +81,7 @@ class TicketForm extends Model
             $transaction = $db->beginTransaction();
             try {
                 $ticket->save();
-                foreach ($this->categories as $category) {
-                    $ticketCategory = new TicketCategory();
-                    $ticketCategory->ticket_id = $ticket->id;
-                    $ticketCategory->category_id = $category;
-                    $ticketCategory->save();
-                }
+                TicketCategory::saveTicketCategory($this->categories, $ticket);
                 $transaction->commit();
             } catch (Exception $e) {
                 $transaction->rollback();
@@ -94,6 +92,9 @@ class TicketForm extends Model
         return false;
     }
 
+    /**
+     * Метод автозаполнения формы объявления для редактирования
+     */
     public function autocompleteEditForm(Ticket $ticket): void
     {
         $this->header = $ticket->header;
@@ -105,10 +106,12 @@ class TicketForm extends Model
     }
 
     /**
+     * Метод редактирования объявления
+     *
+     * @param Ticket $ticket Объявление, которое надо отредактировать
      * @throws ServerErrorHttpException
      */
-
-    public function editTicket(Ticket $ticket)
+    public function editTicket(Ticket $ticket): void
     {
         $this->avatar = UploadedFile::getInstance($this, 'avatar');
         if ($this->validate()) {
@@ -126,12 +129,7 @@ class TicketForm extends Model
             try {
                 $ticket->save();
                 TicketCategory::deleteAll(['ticket_id' => $ticket->id]);
-                foreach ($this->categories as $category) {
-                    $ticketCategory = new TicketCategory();
-                    $ticketCategory->ticket_id = $ticket->id;
-                    $ticketCategory->category_id = $category;
-                    $ticketCategory->save();
-                }
+                TicketCategory::saveTicketCategory($this->categories, $ticket);
                 $transaction->commit();
             } catch (Exception $e) {
                 $transaction->rollback();

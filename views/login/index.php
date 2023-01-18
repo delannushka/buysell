@@ -25,7 +25,7 @@ $this->title = 'Вход'
     ]); ?>
 
     <div class="login__title">
-        <a class="login__link" href="<?= Url::to(['/register']) ?>">Регистрация</a>
+        <a class="login__link" href="<?= Url::to(['/register']); ?>">Регистрация</a>
         <h2>Вход</h2>
     </div>
 
@@ -33,7 +33,7 @@ $this->title = 'Вход'
     <?=$form->field($model, 'password')->passwordInput(); ?>
     <?=Html::submitButton('Войти', ['class' => 'login__button btn btn--medium js-button']) ?>
 
-    <a class="btn btn--small btn--flex btn--white" href="<?= Url::to(['login/auth']) ?>">
+    <a class="btn btn--small btn--flex btn--white" href="<?= Url::to(['login/auth']); ?>">
         Войти через <span class="icon icon--vk"></span>
     </a>
 

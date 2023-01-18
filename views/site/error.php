@@ -35,6 +35,6 @@ $statusCode = $exception->statusCode;
         <div class="search__close-btn"></div>
     </form>
     <a class="error__logo logo" href="<?=Url::to('/'); ?>">
-        <img src="img/logo.svg" width="179" height="34" alt="Логотип Куплю Продам">
+        <img src="<?=Yii::$app->request->baseUrl; ?> /img/logo.svg" width="179" height="34" alt="Логотип Куплю Продам">
     </a>
 </section>

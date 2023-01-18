@@ -17,8 +17,7 @@ class RegisterForm extends Model
     public ?string $password = null;
     public ?string $repeatPassword = null;
 
-    /** @var UploadedFile  */
-    public $avatar = '';
+    public string|UploadedFile $avatar = '';
 
     public function attributeLabels(): array
     {
@@ -44,11 +43,14 @@ class RegisterForm extends Model
         ];
     }
 
+
     /**
+     * Метод создания нового пользователя
+     *
      * @throws Exception
      * @throws ServerErrorHttpException
      */
-    public function createNewUser()
+    public function createNewUser(): void
 {
     $user = new User();
     $user->name = $this->name;

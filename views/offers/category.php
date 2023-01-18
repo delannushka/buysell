@@ -21,7 +21,7 @@ $this->title = 'Категория ' . $category->name;
             <li class="categories-list__item">
                 <a href="<?=Url::to('/offers/category/' . $cat->id); ?>" class="category-tile <?=$cat->id == Yii::$app->request->get('id') ? 'category-tile--active' : '' ;?>">
                     <span class="category-tile__image">
-                        <?php if ($cat->getCountTicketsInCategory()!== 0): ?>
+                        <?php if ($cat->getCountTicketsInCategory() !== 0): ?>
                             <img src="<?=Url::to('/uploads/tickets/'. $cat->getRandomTitleImage()) ;?>" srcset = "<?=Url::to('/uploads/tickets/'. $cat->getRandomTitleImage()) ;?> 2x " alt="Иконка категории">
                         <?php else : ?>
                             <img src="<?=Url::to('/img/blank.png') ;?>" srcset="<?=Url::to('/img/blank.png') ;?> 2x" alt="Иконка категории">

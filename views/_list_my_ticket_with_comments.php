@@ -3,8 +3,8 @@
 /** @var Ticket $model */
 
 use app\models\Ticket;
+use app\widgets\CommentWidget;
 use delta\TicketHandler;
-use yii\helpers\Html;
 use yii\helpers\Url;
 
 ?>
@@ -20,21 +20,10 @@ use yii\helpers\Url;
     </div>
 
     <ul class="comments-list">
-        <?php foreach ($model->comments as $comment): ?>
-            <li class="js-card">
-                <div class="comment-card">
-                    <div class="comment-card__header">
-                        <a href="#" class="comment-card__avatar avatar">
-                            <img src="<?=Url::to('/uploads/avatar/' . $comment->user->avatar); ?>" srcset="<?=Url::to('/uploads/avatar/' . $comment->user->avatar); ?> 2x" alt="Аватар пользователя">
-                        </a>
-                        <p class="comment-card__author"><?=$comment->user->name; ?></p>
-                    </div>
-                    <div class="comment-card__content">
-                        <p><?=$comment->text; ?></p>
-                    </div>
-                    <?=Html::a('Удалить', Url::to(['my/commentout/'. $comment->id]), ['class'=>'comment-card__delete js-delete']); ?>
-                </div>
-            </li>
-        <?php endforeach; ?>
+        <?php foreach ($model->comments as $comment) {
+            if ($comment->status === 1) {
+                echo CommentWidget::widget(['comment' => $comment]);
+            }
+        }?>
     </ul>
 </div>

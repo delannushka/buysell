@@ -69,25 +69,42 @@ class Category extends ActiveRecord
         return $this->hasMany(Ticket::class, ['id' => 'ticket_id'])->viaTable('ticket_category', ['category_id' => 'id']);
     }
 
-    public function getRandomTitleImage()
+    /**
+     * Метод нахождения рандомной фотографии
+     * @return string
+     */
+    public function getRandomTitleImage(): string
     {
-       $randomTicket = TicketCategory::find()->where(['category_id' => $this->id])->orderBy('rand()')->one();
-        return $randomTicket->ticket->photo;
+       return TicketCategory::find()->where(['category_id' => $this->id])->orderBy('rand()')->one()->ticket->photo;
     }
 
+    /**
+     * Метод подсчета действующих объявлений в категории
+     *
+     * @return int
+     * @throws InvalidConfigException
+     */
+    public function getCountTicketsInCategory(): int
+    {
+        return $this->getTickets()->where(['ticket.status' => 1])->count();
+    }
+
+    /**
+     * Метод вывода списка всех категорий
+     *
+     * @return array
+     */
     public static function getCategoriesList(): array
     {
         return Category::find()->all();
     }
 
     /**
-     * @throws InvalidConfigException
+     * Метод вывода списка категорий, у которых есть хотя бы одно объявление
+     *
+     * @return ActiveQuery
      */
-    public function getCountTicketsInCategory(){
-        return $this->getTickets()->where(['ticket.status' => 1])->count();
-    }
-
-    public static function queryCategoryList()
+    public static function getActiveCategoryList(): ActiveQuery
     {
         return
             Category::find()

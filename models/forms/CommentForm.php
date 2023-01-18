@@ -2,9 +2,11 @@
 
 namespace app\models\forms;
 
-class CommentForm extends \yii\base\Model
+use yii\base\Model;
+
+class CommentForm extends Model
 {
-    public $comment;
+    public string $comment;
     const MIN_TEXT = 20;
 
     public function attributeLabels(): array

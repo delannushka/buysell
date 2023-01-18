@@ -2,6 +2,7 @@
 namespace app\models\forms;
 
 use app\models\User;
+use Yii;
 use yii\base\Model;
 
 class LoginForm extends Model
@@ -19,7 +20,6 @@ class LoginForm extends Model
         ];
     }
 
-
     public function rules(): array
     {
         return [
@@ -28,6 +28,11 @@ class LoginForm extends Model
         ];
     }
 
+    /**
+     * Метод получения данных пользователя по email
+     *
+     * @return User|null $user - объект класса User
+     */
     public function getUser(): ?User
     {
         if ($this->_user === null) {
@@ -36,12 +41,17 @@ class LoginForm extends Model
         return $this->_user;
     }
 
-    public function validatePassword($attribute, $params)
+    /**
+     * Метод валидации пароля при входе пользователя
+     *
+     * @param string $attribute - строка из поля 'password' формы входа
+     */
+    public function validatePassword(string $attribute)
     {
         if (!$this->hasErrors()) {
             $user = $this->getUser();
 
-            if (!$user || !\Yii::$app->security->validatePassword($this->password, $user->password)) {
+            if (!$user || !Yii::$app->security->validatePassword($this->password, $user->password)) {
                 $this->addError($attribute, 'Неправильный email или пароль');
             }
         }

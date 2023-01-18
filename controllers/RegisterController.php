@@ -8,6 +8,8 @@ use yii\filters\AccessControl;
 use yii\web\Controller;
 use app\models\forms\RegisterForm;
 use yii\web\ForbiddenHttpException;
+use yii\web\Response;
+use yii\web\ServerErrorHttpException;
 use yii\web\UploadedFile;
 
 class RegisterController extends Controller
@@ -31,12 +33,14 @@ class RegisterController extends Controller
         ];
     }
 
-
     /**
+     * Страница с формой регистрации нового пользователя
+     *
+     * @return Response|string код страницы
      * @throws Exception
-     * @throws \Exception
+     * @throws ServerErrorHttpException
      */
-    public function actionIndex()
+    public function actionIndex(): Response|string
     {
         $registerForm = new RegisterForm();
         if (Yii::$app->request->getIsPost()) {

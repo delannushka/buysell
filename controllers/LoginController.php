@@ -40,7 +40,12 @@ class LoginController extends Controller
         ];
     }
 
-    public function actionIndex()
+    /**
+     * Страница входа.
+     *
+     * @return Response|array|string код страницы
+     */
+    public function actionIndex(): Response|array|string
     {
         $loginForm = new LoginForm();
 
@@ -59,6 +64,9 @@ class LoginController extends Controller
         return $this->render('index', ['model' => $loginForm]);
     }
 
+    /**
+     * Метод для переадресации на URL авторизации VK
+     */
     public function actionAuth()
     {
         $url = Yii::$app->authClientCollection->getClient("vkontakte")->buildAuthUrl(); // Build authorization URL
@@ -66,8 +74,10 @@ class LoginController extends Controller
     }
 
     /**
-     * @throws Exception
+     * Вход на сайт через процедуру аутентификации через VK
+     *
      * @throws HttpException
+     * @throws \Exception
      */
     public function actionVk()
     {
@@ -79,9 +89,14 @@ class LoginController extends Controller
             $authHandler->saveAuthUser();
         }
         Yii::$app->user->login($authHandler->getAuth()->user);
-        $this->redirect('/offers');
+        $this->redirect('/');
     }
 
+    /**
+     * Выход с сайта.
+     *
+     * @return Response
+     */
     public function actionLogout(): Response
     {
         Yii::$app->user->logout();

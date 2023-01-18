@@ -41,7 +41,6 @@ $this->title = 'Результаты поиска'
     <div class="tickets-list__wrapper">
         <div class="tickets-list__header">
             <p class="tickets-list__title">Самое свежее</p>
-            <a href="#" class="tickets-list__link">Еще 25</a>
         </div>
         <?=ListView::widget([
             'dataProvider' => $freshTicketsProvider,

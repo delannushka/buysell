@@ -50,7 +50,7 @@ $this->title = 'Регистрация';
 
         <?=Html::submitButton('Создать аккаунт', ['class' => 'sign-up__button btn btn--medium js-button']) ?>
 
-        <a class="btn btn--small btn--flex btn--white" href="#">
+        <a class="btn btn--small btn--flex btn--white" href="<?= Url::to(['login/auth']); ?>">
             Войти через <span class="icon icon--vk"></span>
         </a>
     <?php ActiveForm::end(); ?>

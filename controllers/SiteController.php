@@ -37,20 +37,25 @@ class SiteController extends Controller
         ];
     }
 
-    public function actionIndex()
+    /**
+     * Главная страница
+     *
+     * @return string
+     */
+    public function actionIndex(): string
     {
         $freshTicketsProvider = new ActiveDataProvider([
-            'query' => Ticket::queryFreshTickets(),
-            'pagination' => ['pageSize' => 8] // автоматически будет переписывать лимит на 8
+            'query' => Ticket::getFreshTickets(),
+            'pagination' => ['pageSize' => self::LIMIT_TICKETS] // автоматически будет переписывать лимит на 8
         ]);
 
         $popularTicketsProvider = new ActiveDataProvider([
-            'query' => Ticket::queryPopularTickets(),
-            'pagination' => ['pageSize' => 8] // автоматически будет переписывать лимит на 8
+            'query' => Ticket::getPopularTickets(),
+            'pagination' => ['pageSize' => self::LIMIT_TICKETS] // автоматически будет переписывать лимит на 8
         ]);
 
         $mainCategoriesProvider = new ActiveDataProvider([
-            'query' => Category::queryCategoryList(),
+            'query' => Category::getActiveCategoryList(),
         ]);
 
         return $this->render('index',

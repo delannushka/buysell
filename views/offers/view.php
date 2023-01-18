@@ -65,7 +65,7 @@ $this->title = 'Объявление';
                     } ?>
                 </ul>
             </div>
-            <?php if(Comment::find()->where(['ticket_id' => $ticket->id, 'status' => 1])->count() === 0): ;?>
+            <?php if(Comment::find()->where(['ticket_id' => $ticket->id, 'status' => 1])->count() === 0): ?>
                 <div class="ticket__message">
                     <p>У этой публикации еще нет ни одного комментария.</p>
                 </div>
@@ -74,6 +74,38 @@ $this->title = 'Объявление';
         <button class="chat-button" type="button" aria-label="Открыть окно чата"></button>
     </div>
 </section>
+
+<section class="chat visually-hidden">
+    <h2 class="chat__subtitle">Чат с продавцом</h2>
+    <ul class="chat__conversation">
+        <li class="chat__message">
+            <div class="chat__message-title">
+                <span class="chat__message-author">Вы</span>
+                <time class="chat__message-time" datetime="2021-11-18T21:15">21:15</time>
+            </div>
+            <div class="chat__message-content">
+                <p>Добрый день!</p>
+                <p>Какова ширина кресла? Из какого оно материала?</p>
+            </div>
+        </li>
+        <li class="chat__message">
+            <div class="chat__message-title">
+                <span class="chat__message-author">Продавец</span>
+                <time class="chat__message-time" datetime="2021-11-18T21:21">21:21</time>
+            </div>
+            <div class="chat__message-content">
+                <p>Добрый день!</p>
+                <p>Ширина кресла 59 см, это хлопковая ткань. кресло очень удобное, и почти новое, без сколов и прочих дефектов</p>
+            </div>
+        </li>
+    </ul>
+    <form class="chat__form">
+        <label class="visually-hidden" for="chat-field">Ваше сообщение в чат</label>
+        <textarea class="chat__form-message" name="chat-message" id="chat-field" placeholder="Ваше сообщение"></textarea>
+        <button class="chat__form-button" type="submit" aria-label="Отправить сообщение в чат"></button>
+    </form>
+</section>
+
 
 
 

@@ -13,11 +13,14 @@ use yii\base\InvalidConfigException;
 use yii\data\ActiveDataProvider;
 use yii\filters\AccessControl;
 use yii\web\Controller;
+use yii\web\ForbiddenHttpException;
 use yii\web\NotFoundHttpException;
+use yii\web\Response;
 use yii\web\ServerErrorHttpException;
 
 class OffersController extends Controller
 {
+    const LIMIT_TICKETS = 8;
     public function behaviors(): array
     {
         return [
@@ -41,24 +44,25 @@ class OffersController extends Controller
     }
 
     /**
+     * Страница просмотра объявлений выбранной категории
+     *
+     * @param int $id - id объявления
+     * @return Response|string - код страницы
      * @throws NotFoundHttpException
      * @throws Exception
      */
-    public function actionIndex($id)
+    public function actionIndex(int $id): Response|string
     {
         $ticket = Ticket::findOne($id);
-        if (!$ticket) {
+        if (!$ticket || $ticket->status === 0) {
             throw new NotFoundHttpException ('Объявление не найдено');
         }
+
         $newComment = new CommentForm();
         if (Yii::$app->request->getIsPost()) {
             $newComment->load(Yii::$app->request->post());
-            if ($newComment->validate()){
-                $comment = new Comment();
-                $comment->saveComment($ticket,$newComment->comment);
-                if (!$comment->save()){
-                    throw new ServerErrorHttpException('Проблема на сервере. Комментарий сохранить не удалилось.');
-                }
+            $comment = new Comment();
+            if ($newComment->validate() && $comment->saveComment($ticket, $newComment->comment)){
                 return Yii::$app->response->redirect("/offers/{$id}");
             }
         }
@@ -69,9 +73,12 @@ class OffersController extends Controller
     }
 
     /**
-     * @throws Exception
+     * Страница с формой добавления нового объявления
+     *
+     * @return Response|string - код страницы
+     * @throws ServerErrorHttpException
      */
-    public function actionAdd()
+    public function actionAdd(): Response|string
     {
         $newTicket = new TicketForm();
         if (Yii::$app->request->getIsPost()) {
@@ -85,19 +92,25 @@ class OffersController extends Controller
     }
 
     /**
+     * Страница просмотра объявлений выбранной категории
+     *
+     * @param int $id - id категории
+     * @return string - код страницы
      * @throws NotFoundHttpException|InvalidConfigException
      */
-    public function actionCategory($id){
+    public function actionCategory(int $id): string
+    {
         $category = Category::findOne($id);
         if(!$category){
             throw new NotFoundHttpException('Категория не найдена');
         }
+
         $totalCountTickets = $category->getCountTicketsInCategory();
         $dataProvider = new ActiveDataProvider([
-            'query' => Ticket::queryTicketsInCategory($category->id),
+            'query' => Ticket::getTicketsInCategory($category->id),
             'totalCount' => $totalCountTickets,
             'pagination' => [
-                'pageSize' => 8,
+                'pageSize' => self::LIMIT_TICKETS,
                 'pageSizeParam' => false,
                 'forcePageParam' => false
             ]]
@@ -112,20 +125,31 @@ class OffersController extends Controller
     }
 
     /**
-     * @throws Exception
+     * Страница редактирования объявления
+     *
+     * @param int $id - id объявления
+     * @return Response|string - код страницы
+     * @throws NotFoundHttpException
+     * @throws ForbiddenHttpException|ServerErrorHttpException
      */
-
-    public function actionEdit($id)
+    public function actionEdit(int $id): Response|string
     {
         $ticket = Ticket::findOne($id);
-
-        $ticketEditForm = new TicketForm();
-        $ticketEditForm->autocompleteEditForm($ticket);
-        if (Yii::$app->request->getIsPost()) {
-            $ticketEditForm->load(Yii::$app->request->post());
-            $ticketEditForm->editTicket($ticket);
-            return Yii::$app->response->redirect("/offers/{$ticket->id}");
+        if (!$ticket || $ticket->status === 0) {
+            throw new NotFoundHttpException ('Объявление не найдено');
         }
-        return $this->render('add-edit', ['model' => $ticketEditForm,]);
+
+        if (Yii::$app->user->can('editAllTickets', ['author_id' => $ticket->user_id])) {
+            $ticketEditForm = new TicketForm();
+            $ticketEditForm->autocompleteEditForm($ticket);
+            if (Yii::$app->request->getIsPost()) {
+                $ticketEditForm->load(Yii::$app->request->post());
+                $ticketEditForm->editTicket($ticket);
+                return Yii::$app->response->redirect("/offers/{$ticket->id}");
+            }
+            return $this->render('add-edit', ['model' => $ticketEditForm,]);
+        } else {
+            throw new ForbiddenHttpException ('Вам нельзя выполнять данное действие', 403);
+        }
     }
 }

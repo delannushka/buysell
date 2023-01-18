@@ -10,6 +10,7 @@ use yii\web\Controller;
 
 class SearchController extends Controller
 {
+    const LIMIT_TICKETS = 8;
     public function behaviors()
     {
         return [
@@ -26,7 +27,12 @@ class SearchController extends Controller
         ];
     }
 
-    function actionIndex()
+    /**
+     * Страница результатов поиска
+     *
+     * @return string
+     */
+    function actionIndex(): string
     {
         $query = Yii::$app->request->get('query');
 
@@ -35,7 +41,8 @@ class SearchController extends Controller
         ]);
 
         $freshTicketsProvider = new ActiveDataProvider([
-            'query' => Ticket::find()->where(['status' => 1])->orderBy('date_add DESC')->limit(8),
+            'query' => Ticket::find()->where(['status' => 1])->orderBy('date_add DESC'),
+            'pagination' => ['pageSize' => self::LIMIT_TICKETS]
         ]);
 
         return $this->render('index', [

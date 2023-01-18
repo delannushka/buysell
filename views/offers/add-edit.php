@@ -14,6 +14,9 @@ use yii\helpers\Url;
 use yii\widgets\ActiveForm;
 
 $this->title = 'Редактирование объявления';
+if (Yii::$app->request->url === '/offers/add') {
+    $this->title = 'Новое объявление';
+}
 ?>
 
 <section class="ticket-form">

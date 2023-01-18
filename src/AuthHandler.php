@@ -9,6 +9,7 @@ use Yii;
 use yii\authclient\clients\VKontakte;
 use yii\helpers\ArrayHelper;
 use yii\web\HttpException;
+use yii\web\ServerErrorHttpException;
 
 /**
  * @property array $attributes Массив информации о пользователе
@@ -43,12 +44,16 @@ class AuthHandler
         return new User();
     }
 
-
     public function getAuth(): Auth
     {
         return $this->auth;
     }
 
+    /**
+     * Метод нахождения юзера в таблице Auth
+     *
+     * @return bool
+     */
     public function isAuthExist(): bool
     {
         $this->auth = Auth::find()->where([
@@ -63,16 +68,15 @@ class AuthHandler
     }
 
     /**
-     * @throws \yii\db\Exception Транзакция не удалась
-     * @throws Exception
+     * Метод сохранения данных юзера в таблицу Auth
+     *
+     * @throws ServerErrorHttpException|\yii\base\Exception
      */
-    public function saveAuthUser()
+    public function saveAuthUser(): void
     {
         $user = $this->getUser();
         $user->loadAuthUser($this->attributes);
-
         $transaction = Yii::$app->db->beginTransaction();
-
         try {
             if ($user->save()) {
                 $this->auth = new Auth([
@@ -82,14 +86,11 @@ class AuthHandler
                 ]);
                 if ($this->auth->save()) {
                     $transaction->commit();
-                    return true;
-                } else {
-                    throw new Exception('Не удалось сохранить данные');
                 }
             }
-        } catch (Exception $exception) {
+        } catch (Exception $e) {
             $transaction->rollback();
-            throw new Exception($exception->getMessage());
+            throw new ServerErrorHttpException('Не удалось сохранить данные');
         }
     }
 }
