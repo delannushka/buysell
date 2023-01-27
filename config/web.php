@@ -57,6 +57,7 @@ $config = [
                 'offers/edit/<id:\d+>' => 'offers/edit',
                 'my/delete/<id:\d+>' => 'my/delete',
                 'my/commentout/<id:\d+>' => 'my/commentout',
+                'chat/<id:\d+>' => 'chat/index'
             ],
         ],
         'authClientCollection' => [
