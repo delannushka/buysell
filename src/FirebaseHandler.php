@@ -81,31 +81,7 @@ class FirebaseHandler extends Model
             ]);
     }
 
-    public function extractDataForBuyer($dataMassages)
-    {
-        $messages = [];
-        foreach ($dataMassages as $dataMessage) {
-            foreach ($dataMessage as $message) {
-                $messages[] = $message;
-            }
-        }
-        return $messages;
-    }
-
-    public function extractDataForSeller($dataMassages){
-        $messages = [];
-        foreach ($dataMassages as $dataMessage) {
-            foreach ($dataMessage as $message) {
-                foreach ($message as $mes)
-                {
-                    $messages[] = $mes;
-                }
-            }
-        }
-        return $messages;
-    }
-
-    public function extractData(bool $isBuyer, $dataMessages)
+    public function extractData(bool $isBuyer, $dataMessages): array
     {
         $messages = [];
         foreach ($dataMessages as $dataMessageFirst) {
