@@ -3,6 +3,10 @@
 /** @var yii\web\View $this */
 /** @var Ticket $ticket */
 /** @var CommentForm $model */
+/** @var ChatForm $modelChat */
+/** @var $messages */
+/** @var $sellerId */
+/** @var $buyerId */
 
 use app\models\Comment;
 use app\models\forms\CommentForm;
@@ -12,6 +16,18 @@ use app\widgets\TicketViewWidget;
 use yii\helpers\Html;
 use yii\helpers\Url;
 use yii\widgets\ActiveForm;
+use yii\widgets\Pjax;
+use app\assets\FirebaseAsset;
+use app\models\User;
+use app\models\forms\ChatForm;
+
+FirebaseAsset::register($this);
+
+if (Yii::$app->user->id === $sellerId){
+    $secondPerson = User::findOne($buyerId)->name;
+} else {
+    $secondPerson = User::findOne($sellerId)->name;
+}
 
 $this->title = 'Объявление';
 ?>
@@ -41,17 +57,21 @@ $this->title = 'Объявление';
                             'errorOptions' => ['tag' => 'span']
                         ]
                     ]); ?>
-                    <div class="comment-form__header">
-                        <a href="#" class="comment-form__avatar avatar">
-                            <img src="<?=Url::to('/uploads/avatar/'. Yii::$app->user->identity->avatar) ?>" srcset="<?=Url::to('/uploads/avatar/'. Yii::$app->user->identity->avatar) ?>" alt="Аватар пользователя">
-                        </a>
-                        <p class="comment-form__author">Вам слово</p>
-                    </div>
-                    <div class="comment-form__field">
-                        <?php $model->comment = '';
-                        echo $form->field($model, 'comment')->textarea(['class' => 'js-field']); ?>
-                    </div>
-                    <?=Html::submitButton('Отправить', ['class' => 'comment-form__button btn btn--white js-button']) ?>
+                        <div class="comment-form__header">
+                            <a href="#" class="comment-form__avatar avatar">
+                                <img src="<?=Url::to('/uploads/avatar/'. Yii::$app->user->identity->avatar) ?>" srcset="<?=Url::to('/uploads/avatar/'. Yii::$app->user->identity->avatar) ?>" alt="Аватар пользователя">
+                            </a>
+                            <p class="comment-form__author">Вам слово</p>
+                        </div>
+                        <div class="comment-form__field">
+                            <?php $model->comment = '';
+                            echo $form->field($model, 'comment')->textarea(['class' => 'js-field']); ?>
+                        </div>
+                        <?=Html::submitButton('Отправить', [
+                            'class' => 'comment-form__button btn btn--white js-button',
+                            'name' => 'submit_comment',
+                            'value' => 'comment'
+                        ]); ?>
                     <?php ActiveForm::end(); ?>
                 </div>
             <?php endif; ?>
@@ -76,34 +96,39 @@ $this->title = 'Объявление';
 </section>
 
 <section class="chat visually-hidden">
-    <h2 class="chat__subtitle">Чат с продавцом</h2>
-    <ul class="chat__conversation">
-        <li class="chat__message">
-            <div class="chat__message-title">
-                <span class="chat__message-author">Вы</span>
-                <time class="chat__message-time" datetime="2021-11-18T21:15">21:15</time>
-            </div>
-            <div class="chat__message-content">
-                <p>Добрый день!</p>
-                <p>Какова ширина кресла? Из какого оно материала?</p>
-            </div>
-        </li>
-        <li class="chat__message">
-            <div class="chat__message-title">
-                <span class="chat__message-author">Продавец</span>
-                <time class="chat__message-time" datetime="2021-11-18T21:21">21:21</time>
-            </div>
-            <div class="chat__message-content">
-                <p>Добрый день!</p>
-                <p>Ширина кресла 59 см, это хлопковая ткань. кресло очень удобное, и почти новое, без сколов и прочих дефектов</p>
-            </div>
-        </li>
-    </ul>
-    <form class="chat__form">
-        <label class="visually-hidden" for="chat-field">Ваше сообщение в чат</label>
-        <textarea class="chat__form-message" name="chat-message" id="chat-field" placeholder="Ваше сообщение"></textarea>
-        <button class="chat__form-button" type="submit" aria-label="Отправить сообщение в чат"></button>
-    </form>
+
+    <?php Pjax::begin(); ?>
+        <h2 class="chat__subtitle"><?=(Yii::$app->user->id !== $sellerId) ? 'Чат с продавцом' : 'Чат с покупателем' ?></h2>
+        <ul class="chat__conversation">
+            <?php if ($messages !== null): ?>
+                <?php foreach ($messages as $message): ?>
+                    <li class="chat__message">
+                        <div class="chat__message-title">
+                            <span class="chat__message-author"><?=(Yii::$app->user->id === $message['user_id'] ) ? 'Вы' : $secondPerson ?></span>
+                            <time class="chat__message-time"><?=Yii::$app->formatter->asDate($message['dt_add'], 'php:H:i'); ?></time>
+                        </div>
+                        <div class="chat__message-content">
+                            <?=$message['message']; ?>
+                        </div>
+                    </li>
+                <?php endforeach;
+            endif; ?>
+        </ul>
+
+        <?php $formChat = ActiveForm::begin([
+            'id' => 'chat-form',
+            'options' => [
+                'class' => 'chat__form',
+                'data-pjax' => true
+            ],
+        ]); ?>
+            <?= $formChat->field($modelChat, 'message', ['options' => ['tag' => false], 'inputOptions' => ['class' => 'chat__form-message']])->textarea(['placeholder' => "Ваше сообщение в чат"])->label(false) ?>
+            <?=Html::submitButton('Отправить', ['class' => 'chat__form-button',
+                'value'=>'chat', 'name'=>'submit_chat']) ?>
+        <?php ActiveForm::end(); ?>
+
+    <?php Pjax::end(); ?>
+
 </section>
 
 

@@ -7,6 +7,7 @@ use Kreait\Firebase\Database\Reference;
 use Kreait\Firebase\Database\Snapshot;
 use Kreait\Firebase\Exception\DatabaseException;
 use Kreait\Firebase\Factory;
+use Yii;
 use yii\base\Model;
 
 class FirebaseHandler extends Model
@@ -17,7 +18,7 @@ class FirebaseHandler extends Model
     public $buyerId;
     public $ticket;
 
-    public function __construct($ticketId, $buyerId)
+    public function __construct($ticketId, $buyerId = null)
     {
         $this->ticketId = $ticketId;
         $this->buyerId = $buyerId;
@@ -31,6 +32,9 @@ class FirebaseHandler extends Model
 
     public function getPathToChat(): string
     {
+        if (!$this->buyerId){
+            return $this->ticketId;
+        }
         return $this->ticketId . '/' . $this->buyerId;
     }
 
@@ -67,16 +71,17 @@ class FirebaseHandler extends Model
         $thirdCoordinate = $this->getSnap()->numChildren();
         return
             $this->realtimeDatabase->getReference($this->getPathToChat() . '/' . $thirdCoordinate)
-            ->set([
+
+                ->set([
                 [
-                    'user_id' => $this->buyerId,
+                    'user_id' => Yii::$app->user->id,
                     'dt_add' => date('c'),
                     'message' => $message
                 ]
             ]);
     }
 
-    public function extractData($dataMassages)
+    public function extractDataForBuyer($dataMassages)
     {
         $messages = [];
         foreach ($dataMassages as $dataMessage) {
@@ -84,6 +89,37 @@ class FirebaseHandler extends Model
                 $messages[] = $message;
             }
         }
+        return $messages;
+    }
+
+    public function extractDataForSeller($dataMassages){
+        $messages = [];
+        foreach ($dataMassages as $dataMessage) {
+            foreach ($dataMessage as $message) {
+                foreach ($message as $mes)
+                {
+                    $messages[] = $mes;
+                }
+            }
+        }
+        return $messages;
+    }
+
+    public function extractData(bool $isBuyer, $dataMessages)
+    {
+        $messages = [];
+        foreach ($dataMessages as $dataMessageFirst) {
+            foreach ($dataMessageFirst as $dataMessageSecond) {
+                if (!$isBuyer){
+                    foreach ($dataMessageSecond as $dataMessageThird){
+                        $messages[] = $dataMessageThird;
+                    }
+                } else {
+                    $messages[] = $dataMessageSecond;
+                }
+            }
+        }
+
         return $messages;
     }
 }

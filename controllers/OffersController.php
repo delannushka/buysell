@@ -4,10 +4,13 @@ namespace app\controllers;
 
 use app\models\Category;
 use app\models\Comment;
+use app\models\forms\ChatForm;
 use app\models\forms\CommentForm;
 use app\models\forms\TicketForm;
 use app\models\Ticket;
+use delta\FirebaseHandler;
 use Exception;
+use Kreait\Firebase\Exception\DatabaseException;
 use Yii;
 use yii\base\InvalidConfigException;
 use yii\data\ActiveDataProvider;
@@ -49,7 +52,7 @@ class OffersController extends Controller
      * @param int $id - id объявления
      * @return Response|string - код страницы
      * @throws NotFoundHttpException
-     * @throws Exception
+     * @throws Exception|DatabaseException
      */
     public function actionIndex(int $id): Response|string
     {
@@ -58,17 +61,68 @@ class OffersController extends Controller
             throw new NotFoundHttpException ('Объявление не найдено');
         }
 
+        $authorTicket = $ticket->user;
+
+        if (Yii::$app->user->id !== $authorTicket->id){
+            $isBuyer = true;
+        } else {
+            $isBuyer = false;
+        }
+
         $newComment = new CommentForm();
-        if (Yii::$app->request->getIsPost()) {
+        $chatForm = new ChatForm();
+        $messages = [];
+
+        //Текущий пользователь НЕ АВТОР объявления
+        if ($isBuyer) {
+            $buyerId = Yii::$app->user->id;
+            $database = new FirebaseHandler($id, $buyerId);
+            $dataMessages = $database->getValue();
+            if ($dataMessages !== null) {
+                $messages = $database->extractData(true, $dataMessages);
+            }
+        }
+
+        //Текущий пользователь АВТОР объявления
+        if (!$isBuyer) {
+            $database = new FirebaseHandler($id);
+            $dataMessages = $database->getValue();
+            if ($dataMessages !== null) {
+                $messages = $database->extractData(false, $dataMessages);
+            }
+            if (!$messages){
+                throw new ForbiddenHttpException('Чат должен начать покупатель');
+            } else {
+                $buyerId = $messages[0]['user_id'];
+            }
+        }
+
+        if (Yii::$app->request->getIsAjax()) {
+            $chatForm->load(Yii::$app->request->post());
+            if ($chatForm->validate()) {
+                $database = new FirebaseHandler($id, $buyerId);
+                $chatForm->addMessage($database);
+                $renewDataMessages = $database->getValue();
+                $messages = $database->extractData($buyerId, $renewDataMessages);
+                $chatForm = new ChatForm();
+            }
+        }
+
+        if (Yii::$app->request->post('submit_comment') === 'comment') {
             $newComment->load(Yii::$app->request->post());
             $comment = new Comment();
-            if ($newComment->validate() && $comment->saveComment($ticket, $newComment->comment)){
+            if ($newComment->validate() && $comment->saveComment($ticket, $newComment->comment)) {
                 return Yii::$app->response->redirect("/offers/{$id}");
             }
         }
+
         return $this->render('view', [
             'ticket' => $ticket,
             'model' => $newComment,
+            'modelChat' => $chatForm,
+            'messages' => $messages,
+            'sellerId' => $authorTicket->id,
+            'buyerId' => $buyerId
         ]);
     }
 
@@ -152,4 +206,6 @@ class OffersController extends Controller
             throw new ForbiddenHttpException ('Вам нельзя выполнять данное действие', 403);
         }
     }
+
+
 }
