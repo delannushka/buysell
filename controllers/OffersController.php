@@ -68,32 +68,37 @@ class OffersController extends Controller
         } else {
             $isBuyer = false;
         }
-
+        if (Yii::$app->user->isGuest){
+            $buyerId = null;
+        }
         $newComment = new CommentForm();
         $chatForm = new ChatForm();
         $messages = [];
 
         //Текущий пользователь НЕ АВТОР объявления
-        if ($isBuyer) {
+        if ($isBuyer && !Yii::$app->user->isGuest) {
             $buyerId = Yii::$app->user->id;
             $database = new FirebaseHandler($id, $buyerId);
             $dataMessages = $database->getValue();
             if ($dataMessages !== null) {
                 $messages = $database->extractData(true, $dataMessages);
+                $database->getChatRead($messages);
             }
         }
 
         //Текущий пользователь АВТОР объявления
-        if (!$isBuyer) {
+        if (!$isBuyer && !Yii::$app->user->isGuest) {
             $database = new FirebaseHandler($id);
             $dataMessages = $database->getValue();
             if ($dataMessages !== null) {
                 $messages = $database->extractData(false, $dataMessages);
-            }
-            if (!$messages){
-                throw new ForbiddenHttpException('Чат должен начать покупатель');
-            } else {
                 $buyerId = $messages[0]['user_id'];
+                $database = new FirebaseHandler($id, $buyerId);
+                $dataMessages = $database->getValue();
+                $messages = $database->extractData(true, $dataMessages);
+                $database->getChatRead($messages);
+            } else {
+                $buyerId = null;
             }
         }
 
@@ -101,6 +106,9 @@ class OffersController extends Controller
             $chatForm->load(Yii::$app->request->post());
             if ($chatForm->validate()) {
                 $database = new FirebaseHandler($id, $buyerId);
+                if ($buyerId === null) {
+                    throw new ForbiddenHttpException('Чат должен начать покупатель');
+                }
                 $chatForm->addMessage($database);
                 $renewDataMessages = $database->getValue();
                 $messages = $database->extractData($buyerId, $renewDataMessages);

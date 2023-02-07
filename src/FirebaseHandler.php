@@ -13,12 +13,11 @@ use yii\base\Model;
 class FirebaseHandler extends Model
 {
     private $realtimeDatabase;
-    public $sellerId;
     public $ticketId;
     public $buyerId;
     public $ticket;
 
-    public function __construct($ticketId, $buyerId = null)
+    public function __construct($ticketId = null, $buyerId = null)
     {
         $this->ticketId = $ticketId;
         $this->buyerId = $buyerId;
@@ -27,10 +26,11 @@ class FirebaseHandler extends Model
             ->withDatabaseUri('https://buysell-ca35f-default-rtdb.firebaseio.com')
             ->createDatabase();
         $this->ticket = Ticket::findOne($ticketId);
-        $this->sellerId = $this->ticket->user_id;
     }
-
-    public function getPathToChat(): string
+    /**
+     * Получение пути для заданного чата
+     */
+    public function getPathToChat(): ?string
     {
         if (!$this->buyerId){
             return $this->ticketId;
@@ -39,9 +39,11 @@ class FirebaseHandler extends Model
     }
 
     /**
+     * Получение данных чата
+     *
      * @throws DatabaseException
      */
-    public function getValue(): array|bool|null
+    public function getValue()
     {
         if (!$this->realtimeDatabase) {
             return false;
@@ -50,6 +52,8 @@ class FirebaseHandler extends Model
     }
 
     /**
+     * Получение Snapshot чата
+     *
      * @throws DatabaseException
      */
     public function getSnap(): Snapshot|bool
@@ -61,6 +65,9 @@ class FirebaseHandler extends Model
     }
 
     /**
+     * Добавление сообщения в базу Firebase
+     *
+     * @param string $message Сообщение отправленное в чат
      * @throws DatabaseException
      */
     public function pushMessage(string $message): Reference|bool
@@ -69,6 +76,11 @@ class FirebaseHandler extends Model
             return false;
         }
         $thirdCoordinate = $this->getSnap()->numChildren();
+        if (Yii::$app->user->id !== $this->ticket->user_id){
+            $recipientId = $this->ticket->user_id;
+        } else {
+            $recipientId = $this->buyerId;
+        }
         return
             $this->realtimeDatabase->getReference($this->getPathToChat() . '/' . $thirdCoordinate)
 
@@ -76,12 +88,20 @@ class FirebaseHandler extends Model
                 [
                     'user_id' => Yii::$app->user->id,
                     'dt_add' => date('c'),
-                    'message' => $message
+                    'message' => $message,
+                    'read' => false,
+                    'recipient_id' => $recipientId
                 ]
             ]);
     }
-
-    public function extractData(bool $isBuyer, $dataMessages): array
+    /**
+     * Получение тел сообщений из базы Firebase, для дальнейшей передачи во view
+     *
+     * @param bool $isBuyer Если покупатель найден (или первым в чат написал покупатель) true
+     * @param array $dataMessages Данные без обработки из Firebase
+     * @return array
+     */
+    public function extractData(bool $isBuyer, array $dataMessages): array
     {
         $messages = [];
         foreach ($dataMessages as $dataMessageFirst) {
@@ -95,7 +115,40 @@ class FirebaseHandler extends Model
                 }
             }
         }
-
         return $messages;
+    }
+
+    /**
+     * Отметка сообщения как прочитанного
+     *
+     * @param int $messageNumber номер сообщения в базе Firebase
+     * @return Reference|bool
+     * @throws DatabaseException
+     */
+    public function readMessage(int $messageNumber): Reference|bool
+    {
+        if (!$this->realtimeDatabase) {
+            return false;
+        }
+        $path = $this->getPathToChat() . '/'. $messageNumber . '/0';
+        return $this->realtimeDatabase->getReference($path)
+            ->update([
+                'read' => true,
+            ]);
+    }
+
+    /**
+     * Обновление статуса сообщений при просмотре
+     *
+     * @param array $messages Сообщения, прочитанные пользователем
+     * @throws DatabaseException
+     */
+    public function getChatRead(array $messages)
+    {
+        foreach ($messages as $key => $message){
+            if ($message['user_id'] !== Yii::$app->user->id){
+                $this->readMessage($key);
+            }
+        }
     }
 }

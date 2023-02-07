@@ -23,7 +23,9 @@ use app\models\forms\ChatForm;
 
 FirebaseAsset::register($this);
 
-if (Yii::$app->user->id === $sellerId){
+if ($buyerId === null) {
+    $secondPerson = '';
+} else if (Yii::$app->user->id === $sellerId) {
     $secondPerson = User::findOne($buyerId)->name;
 } else {
     $secondPerson = User::findOne($sellerId)->name;
@@ -95,41 +97,45 @@ $this->title = 'Объявление';
     </div>
 </section>
 
-<section class="chat visually-hidden">
+<?php if (!Yii::$app->user->isGuest) : ?>
+    <section class="chat visually-hidden">
+        <?php Pjax::begin(); ?>
+            <h2 class="chat__subtitle"><?=(Yii::$app->user->id !== $sellerId) ? 'Чат с продавцом' : 'Чат с покупателем' ?></h2>
+            <ul class="chat__conversation">
+                <?php if ($messages !== null): ?>
+                    <?php foreach ($messages as $message): ?>
+                        <li class="chat__message">
+                            <div class="chat__message-title">
+                                <span class="chat__message-author"><?=(Yii::$app->user->id === $message['user_id'] ) ? 'Вы' : $secondPerson ?></span>
+                                <time class="chat__message-time"><?=Yii::$app->formatter->asDate($message['dt_add'], 'php:H:i'); ?></time>
+                            </div>
+                            <div class="chat__message-content">
+                                <?=$message['message']; ?>
+                            </div>
+                        </li>
+                    <?php endforeach;
+                endif; ?>
+            </ul>
 
-    <?php Pjax::begin(); ?>
-        <h2 class="chat__subtitle"><?=(Yii::$app->user->id !== $sellerId) ? 'Чат с продавцом' : 'Чат с покупателем' ?></h2>
-        <ul class="chat__conversation">
-            <?php if ($messages !== null): ?>
-                <?php foreach ($messages as $message): ?>
-                    <li class="chat__message">
-                        <div class="chat__message-title">
-                            <span class="chat__message-author"><?=(Yii::$app->user->id === $message['user_id'] ) ? 'Вы' : $secondPerson ?></span>
-                            <time class="chat__message-time"><?=Yii::$app->formatter->asDate($message['dt_add'], 'php:H:i'); ?></time>
-                        </div>
-                        <div class="chat__message-content">
-                            <?=$message['message']; ?>
-                        </div>
-                    </li>
-                <?php endforeach;
-            endif; ?>
-        </ul>
+            <?php $formChat = ActiveForm::begin([
+                'id' => 'chat-form',
+                'options' => [
+                    'class' => 'chat__form',
+                    'data-pjax' => true
+                ],
+            ]); ?>
+                <?= $formChat->field($modelChat, 'message', ['options' => ['tag' => false], 'inputOptions' => ['class' => 'chat__form-message']])->textarea(['placeholder' => "Ваше сообщение в чат"])->label(false) ?>
+                <?=Html::submitButton('Отправить', ['class' => 'chat__form-button',
+                    'value'=>'chat', 'name'=>'submit_chat']) ?>
+            <?php ActiveForm::end(); ?>
+        <?php Pjax::end(); ?>
+    </section>
+<?php else: ?>
+    <section class="chat visually-hidden">
+        <h2 class="chat__subtitle">Для того, чтобы напистаь сообщение продавцу, зайдите на сайт</h2>
+    </section>
+<?php endif; ?>
 
-        <?php $formChat = ActiveForm::begin([
-            'id' => 'chat-form',
-            'options' => [
-                'class' => 'chat__form',
-                'data-pjax' => true
-            ],
-        ]); ?>
-            <?= $formChat->field($modelChat, 'message', ['options' => ['tag' => false], 'inputOptions' => ['class' => 'chat__form-message']])->textarea(['placeholder' => "Ваше сообщение в чат"])->label(false) ?>
-            <?=Html::submitButton('Отправить', ['class' => 'chat__form-button',
-                'value'=>'chat', 'name'=>'submit_chat']) ?>
-        <?php ActiveForm::end(); ?>
-
-    <?php Pjax::end(); ?>
-
-</section>
 
 
 
