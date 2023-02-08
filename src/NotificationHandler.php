@@ -50,7 +50,7 @@ class NotificationHandler extends Model
     }
 
     /**
-     * Отправка письма пользователю
+     * Отправка письма пользователю, у которого есть непрочитанные сообщения
      * @param int $recipientId id пользователя, которому производится отправка
      *
      * @throws TransportExceptionInterface
