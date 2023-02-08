@@ -2,8 +2,8 @@
 
 namespace delta;
 
-use app\models\forms\ChatForm;
 use app\models\Ticket;
+use Kreait\Firebase\Contract\Database;
 use Kreait\Firebase\Database\Reference;
 use Kreait\Firebase\Database\Snapshot;
 use Kreait\Firebase\Exception\DatabaseException;
@@ -13,10 +13,10 @@ use yii\base\Model;
 
 class FirebaseHandler extends Model
 {
-    private $realtimeDatabase;
-    public $ticketId;
-    public $buyerId;
-    public $ticket;
+    private Database $realtimeDatabase;
+    public int|null $ticketId;
+    public int|null $buyerId;
+    public Ticket $ticket;
 
     public function __construct($ticketId = null, $buyerId = null)
     {
@@ -46,9 +46,6 @@ class FirebaseHandler extends Model
      */
     public function getValue()
     {
-        if (!$this->realtimeDatabase) {
-            return false;
-        }
         return $this->realtimeDatabase->getReference($this->getPathToChat())->getValue();
     }
 
@@ -57,11 +54,8 @@ class FirebaseHandler extends Model
      *
      * @throws DatabaseException
      */
-    public function getSnap(): Snapshot|bool
+    public function getSnap(): Snapshot
     {
-        if (!$this->realtimeDatabase) {
-            return false;
-        }
         return $this->realtimeDatabase->getReference($this->getPathToChat())->getSnapshot();
     }
 
@@ -71,26 +65,23 @@ class FirebaseHandler extends Model
      * @param string $message Сообщение отправленное в чат
      * @throws DatabaseException
      */
-    public function pushMessage(string $message): Reference|bool
+    public function pushMessage(string $message): Reference
     {
-        if (!$this->realtimeDatabase || !$message) {
-            return false;
-        }
         $thirdCoordinate = $this->getSnap()->numChildren();
         if (Yii::$app->user->id !== $this->ticket->user_id){
             $recipientId = $this->ticket->user_id;
         } else {
             $recipientId = $this->buyerId;
         }
-
-        return $this->realtimeDatabase->getReference($this->getPathToChat() . '/' . $thirdCoordinate)
-            ->set([[
-                'user_id' => Yii::$app->user->id,
-                'dt_add' => date('c'),
-                'message' => $message,
-                'read' => false,
-                'recipient_id' => $recipientId
-            ]]);
+        return
+            $this->realtimeDatabase->getReference($this->getPathToChat() . '/' . $thirdCoordinate)
+                ->set([[
+                    'user_id' => Yii::$app->user->id,
+                    'dt_add' => date('c'),
+                    'message' => $message,
+                    'read' => false,
+                    'recipient_id' => $recipientId
+                ]]);
     }
 
     /**
@@ -121,14 +112,11 @@ class FirebaseHandler extends Model
      * Отметка сообщения как прочитанного
      *
      * @param int $messageNumber номер сообщения в базе Firebase
-     * @return Reference|bool
+     * @return Reference
      * @throws DatabaseException
      */
-    public function readMessage(int $messageNumber): Reference|bool
+    public function readMessage(int $messageNumber): Reference
     {
-        if (!$this->realtimeDatabase) {
-            return false;
-        }
         $path = $this->getPathToChat() . '/'. $messageNumber . '/0';
         return $this->realtimeDatabase->getReference($path)
             ->update([

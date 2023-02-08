@@ -10,7 +10,6 @@ use yii\web\Controller;
 
 class SearchController extends Controller
 {
-    const LIMIT_TICKETS = 8;
     public function behaviors()
     {
         return [
@@ -32,6 +31,8 @@ class SearchController extends Controller
      *
      * @return string
      */
+    const LIMIT_TICKETS = 8;
+
     function actionIndex(): string
     {
         $query = Yii::$app->request->get('query');

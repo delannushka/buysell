@@ -10,8 +10,6 @@ use yii\web\Controller;
 
 class SiteController extends Controller
 {
-    const LIMIT_TICKETS = 8;
-
     public function behaviors()
     {
         return [
@@ -27,6 +25,8 @@ class SiteController extends Controller
             ],
         ];
     }
+
+    const LIMIT_TICKETS = 8;
 
     public function actions(): array
     {

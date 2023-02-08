@@ -4,8 +4,8 @@ namespace app\controllers;
 
 use app\models\forms\LoginForm;
 use delta\AuthHandler;
+use Exception;
 use Yii;
-use yii\db\Exception;
 use yii\filters\AccessControl;
 use yii\web\Controller;
 use yii\web\ForbiddenHttpException;
@@ -77,7 +77,7 @@ class LoginController extends Controller
      * Вход на сайт через процедуру аутентификации через VK
      *
      * @throws HttpException
-     * @throws \Exception
+     * @throws Exception
      */
     public function actionVk()
     {

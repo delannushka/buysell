@@ -14,6 +14,10 @@ class RbacController extends \yii\web\Controller
     // Exception 'yii\base\UnknownMethodException' with message 'Calling unknown method: yii\console\Request::validateCsrfToken()'
     //in C:\OpenServer\domains\buysell\vendor\yiisoft\yii2\base\Component.php:300
 
+    /**
+     * Метод создания ролей модератора и простого пользователя
+     *
+     */
     public function actionInit()
     {
         $auth = Yii::$app->authManager;
