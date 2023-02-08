@@ -31,22 +31,4 @@ class ChatForm extends Model
         ];
     }
 
-    /**
-     * Метод сохранения данных из формы добавления публикации в БД
-     **
-     * @param FirebaseHandler $chatFirebaseRealTime
-     * @return bool
-     * @throws DatabaseException
-     */
-
-    public function addMessage(FirebaseHandler $chatFirebaseRealTime): bool
-    {
-        if (!$this->message) {
-            return false;
-        }
-        if ($chatFirebaseRealTime->pushMessage($this->message)) {
-            return true;
-        }
-        return false;
-    }
 }

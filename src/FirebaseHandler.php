@@ -2,6 +2,7 @@
 
 namespace delta;
 
+use app\models\forms\ChatForm;
 use app\models\Ticket;
 use Kreait\Firebase\Database\Reference;
 use Kreait\Firebase\Database\Snapshot;
@@ -81,18 +82,15 @@ class FirebaseHandler extends Model
         } else {
             $recipientId = $this->buyerId;
         }
-        return
-            $this->realtimeDatabase->getReference($this->getPathToChat() . '/' . $thirdCoordinate)
 
-                ->set([
-                [
-                    'user_id' => Yii::$app->user->id,
-                    'dt_add' => date('c'),
-                    'message' => $message,
-                    'read' => false,
-                    'recipient_id' => $recipientId
-                ]
-            ]);
+        return $this->realtimeDatabase->getReference($this->getPathToChat() . '/' . $thirdCoordinate)
+            ->set([[
+                'user_id' => Yii::$app->user->id,
+                'dt_add' => date('c'),
+                'message' => $message,
+                'read' => false,
+                'recipient_id' => $recipientId
+            ]]);
     }
 
     /**
@@ -152,4 +150,82 @@ class FirebaseHandler extends Model
             }
         }
     }
+
+    /**
+     * Получение массива сообщений после отправки нового сообщения в чат
+     *
+     * @param int|null $buyerId id покупателя, либо null, если чат пытается начать сам продавец
+     * @param string $message новое сообщение
+     * @return array массив сообщений чата
+     * @throws DatabaseException
+     */
+    public function drawMessagesAfterPost(int|null $buyerId, string $message): array
+    {
+        if ($buyerId === null) {
+            echo 'Чат должен начать покупатель';
+            exit();
+        } else {
+            $this->pushMessage($message);
+            $renewDataMessages = $this->getValue();
+            $messages = $this->extractData($buyerId, $renewDataMessages);
+        }
+        return $messages;
+    }
+
+    /**
+     * Получение массива сообщений, если текущий пользователь не автор объявления
+     *
+     * @return array массив сообщений чата
+     * @throws DatabaseException
+     */
+    public function drawMessagesForBuyer(): array
+    {
+        $dataMessages = $this->getValue();
+        if ($dataMessages !== null) {
+            $messages = $this->extractData(true, $dataMessages);
+            $this->getChatRead($messages);
+        } else {
+            $messages =[];
+        }
+        return $messages;
+    }
+
+    /**
+     * Получение массива сообщений, если текущий пользователь автор объявления
+     *
+     * @param int $id id объявления
+     * @return array массив сообщений чата
+     * @throws DatabaseException
+     */
+    public function drawMessagesForAuthor(int $id): array
+    {
+        $dataMessages = $this->getValue();
+        if ($dataMessages !== null) {
+            $messages = $this->extractData(false, $dataMessages);
+            $buyerId = $messages[0]['user_id'];
+            $database = new FirebaseHandler($id, $buyerId);
+            $dataMessages = $database->getValue();
+            $messages = $database->extractData(true, $dataMessages);
+            $database->getChatRead($messages);
+        } else {
+            $messages = [];
+        }
+        return $messages;
+    }
+
+    /**
+     * Получение id покупателя, когда текущим пользователем является автор объявления
+     *
+     * @param array $messages массив сообщений чата
+     * @return int|null
+     */
+    public function findBuyerId(array $messages): ?int
+    {
+        if (empty($messages)){
+            return null;
+        } else {
+            return $messages[0]['user_id'];
+        }
+    }
+
 }

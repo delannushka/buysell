@@ -67,9 +67,8 @@ class OffersController extends Controller
         if (Yii::$app->user->id !== $authorTicket->id){
             $isBuyer = true;
         }
-        if (Yii::$app->user->isGuest){
-            $buyerId = null;
-        }
+
+        $buyerId = null;
         $newComment = new CommentForm();
         $chatForm = new ChatForm();
         $messages = [];
@@ -79,11 +78,7 @@ class OffersController extends Controller
             $buyerId = Yii::$app->user->id;
             try {
                 $database = new FirebaseHandler($id, $buyerId);
-                $dataMessages = $database->getValue();
-                if ($dataMessages !== null) {
-                    $messages = $database->extractData(true, $dataMessages);
-                    $database->getChatRead($messages);
-                }
+                $messages = $database->drawMessagesForBuyer();
             } catch (FirebaseException) {
                 echo 'Сервис переписки с продавцом временно не работает! ';
             }
@@ -93,39 +88,23 @@ class OffersController extends Controller
         if (!$isBuyer && !Yii::$app->user->isGuest) {
             try {
                 $database = new FirebaseHandler($id);
-                $dataMessages = $database->getValue();
-                if ($dataMessages !== null) {
-                    $messages = $database->extractData(false, $dataMessages);
-                    $buyerId = $messages[0]['user_id'];
-                    $database = new FirebaseHandler($id, $buyerId);
-                    $dataMessages = $database->getValue();
-                    $messages = $database->extractData(true, $dataMessages);
-                    $database->getChatRead($messages);} else {
-                    $buyerId = null;
-                }
+                $messages = $database->drawMessagesForAuthor($id);
+                $buyerId = $database->findBuyerId($messages);
             } catch (FirebaseException) {
                 $buyerId = null;
                 echo 'Сервис переписки с продавцом временно не работает! ';
             }
         }
 
-        if (Yii::$app->request->getIsAjax()) {
-            $chatForm->load(Yii::$app->request->post());
-            if ($chatForm->validate()) {
-                try {
-                    $database = new FirebaseHandler($id, $buyerId);
-                    if ($buyerId === null) {
-                        echo 'Чат должен начать покупатель';
-                        exit();
-                    } else {
-                        $chatForm->addMessage($database);
-                        $renewDataMessages = $database->getValue();
-                        $messages = $database->extractData($buyerId, $renewDataMessages);
-                        $chatForm = new ChatForm();
-                    }
-                } catch (FirebaseException) {
-                    echo 'Сервис переписки с продавцом временно не работает ';
-                }
+        if (Yii::$app->request->getIsAjax() &&
+            $chatForm->load(Yii::$app->request->post()) && $chatForm->validate()) {
+            try {
+                $newMessage = $chatForm->message;
+                $database = new FirebaseHandler($id, $buyerId);
+                $messages = $database->drawMessagesAfterPost($buyerId, $newMessage);
+                $chatForm = new ChatForm();
+            } catch (FirebaseException) {
+                echo 'Сервис переписки с продавцом временно не работает ';
             }
         }
 
