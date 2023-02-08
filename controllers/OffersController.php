@@ -10,7 +10,7 @@ use app\models\forms\TicketForm;
 use app\models\Ticket;
 use delta\FirebaseHandler;
 use Exception;
-use Kreait\Firebase\Exception\DatabaseException;
+use Kreait\Firebase\Exception\FirebaseException;
 use Yii;
 use yii\base\InvalidConfigException;
 use yii\data\ActiveDataProvider;
@@ -52,7 +52,7 @@ class OffersController extends Controller
      * @param int $id - id объявления
      * @return Response|string - код страницы
      * @throws NotFoundHttpException
-     * @throws Exception|DatabaseException
+     * @throws Exception
      */
     public function actionIndex(int $id): Response|string
     {
@@ -62,11 +62,10 @@ class OffersController extends Controller
         }
 
         $authorTicket = $ticket->user;
+        $isBuyer = false;
 
         if (Yii::$app->user->id !== $authorTicket->id){
             $isBuyer = true;
-        } else {
-            $isBuyer = false;
         }
         if (Yii::$app->user->isGuest){
             $buyerId = null;
@@ -78,41 +77,55 @@ class OffersController extends Controller
         //Текущий пользователь НЕ АВТОР объявления
         if ($isBuyer && !Yii::$app->user->isGuest) {
             $buyerId = Yii::$app->user->id;
-            $database = new FirebaseHandler($id, $buyerId);
-            $dataMessages = $database->getValue();
-            if ($dataMessages !== null) {
-                $messages = $database->extractData(true, $dataMessages);
-                $database->getChatRead($messages);
+            try {
+                $database = new FirebaseHandler($id, $buyerId);
+                $dataMessages = $database->getValue();
+                if ($dataMessages !== null) {
+                    $messages = $database->extractData(true, $dataMessages);
+                    $database->getChatRead($messages);
+                }
+            } catch (FirebaseException) {
+                echo 'Сервис переписки с продавцом временно не работает! ';
             }
         }
 
         //Текущий пользователь АВТОР объявления
         if (!$isBuyer && !Yii::$app->user->isGuest) {
-            $database = new FirebaseHandler($id);
-            $dataMessages = $database->getValue();
-            if ($dataMessages !== null) {
-                $messages = $database->extractData(false, $dataMessages);
-                $buyerId = $messages[0]['user_id'];
-                $database = new FirebaseHandler($id, $buyerId);
+            try {
+                $database = new FirebaseHandler($id);
                 $dataMessages = $database->getValue();
-                $messages = $database->extractData(true, $dataMessages);
-                $database->getChatRead($messages);
-            } else {
+                if ($dataMessages !== null) {
+                    $messages = $database->extractData(false, $dataMessages);
+                    $buyerId = $messages[0]['user_id'];
+                    $database = new FirebaseHandler($id, $buyerId);
+                    $dataMessages = $database->getValue();
+                    $messages = $database->extractData(true, $dataMessages);
+                    $database->getChatRead($messages);} else {
+                    $buyerId = null;
+                }
+            } catch (FirebaseException) {
                 $buyerId = null;
+                echo 'Сервис переписки с продавцом временно не работает! ';
             }
         }
 
         if (Yii::$app->request->getIsAjax()) {
             $chatForm->load(Yii::$app->request->post());
             if ($chatForm->validate()) {
-                $database = new FirebaseHandler($id, $buyerId);
-                if ($buyerId === null) {
-                    throw new ForbiddenHttpException('Чат должен начать покупатель');
+                try {
+                    $database = new FirebaseHandler($id, $buyerId);
+                    if ($buyerId === null) {
+                        echo 'Чат должен начать покупатель';
+                        exit();
+                    } else {
+                        $chatForm->addMessage($database);
+                        $renewDataMessages = $database->getValue();
+                        $messages = $database->extractData($buyerId, $renewDataMessages);
+                        $chatForm = new ChatForm();
+                    }
+                } catch (FirebaseException) {
+                    echo 'Сервис переписки с продавцом временно не работает ';
                 }
-                $chatForm->addMessage($database);
-                $renewDataMessages = $database->getValue();
-                $messages = $database->extractData($buyerId, $renewDataMessages);
-                $chatForm = new ChatForm();
             }
         }
 

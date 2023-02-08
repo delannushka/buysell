@@ -94,19 +94,20 @@ class FirebaseHandler extends Model
                 ]
             ]);
     }
+
     /**
      * Получение тел сообщений из базы Firebase, для дальнейшей передачи во view
      *
-     * @param bool $isBuyer Если покупатель найден (или первым в чат написал покупатель) true
+     * @param bool $isBuyerExists true - у объявления есть покупатель
      * @param array $dataMessages Данные без обработки из Firebase
      * @return array
      */
-    public function extractData(bool $isBuyer, array $dataMessages): array
+    public function extractData(bool $isBuyerExists, array $dataMessages): array
     {
         $messages = [];
         foreach ($dataMessages as $dataMessageFirst) {
             foreach ($dataMessageFirst as $dataMessageSecond) {
-                if (!$isBuyer){
+                if (!$isBuyerExists){
                     foreach ($dataMessageSecond as $dataMessageThird){
                         $messages[] = $dataMessageThird;
                     }
