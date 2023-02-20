@@ -18,13 +18,16 @@ class FirebaseHandler extends Model
     public int|null $buyerId;
     public Ticket $ticket;
 
+    public string $namePrivateKeyFile = 'buy-sell-65b7d-firebase-adminsdk-5j6r0-c757a773ce.json';
+    public string $nameDatabaseUri =  'https://buy-sell-65b7d-default-rtdb.firebaseio.com';
+
     public function __construct($ticketId = null, $buyerId = null)
     {
         $this->ticketId = $ticketId;
         $this->buyerId = $buyerId;
         $this->realtimeDatabase = (new Factory())
-            ->withServiceAccount(__DIR__ . '/buysell-ca35f-firebase-adminsdk-v8bwf-608e868ed7.json')
-            ->withDatabaseUri('https://buysell-ca35f-default-rtdb.firebaseio.com')
+            ->withServiceAccount(__DIR__ . '/' . $this->namePrivateKeyFile)
+            ->withDatabaseUri($this->nameDatabaseUri)
             ->createDatabase();
         $this->ticket = Ticket::findOne($ticketId);
     }
