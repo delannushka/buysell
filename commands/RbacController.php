@@ -8,11 +8,8 @@ use yii\console\Controller;
 
 class RbacController extends \yii\web\Controller
 {
-    //у меня не вышло через консоль выполнить это действие, поэтому я описала action в
-    //в соседнем контроллере, и выполнила этот action через браузер
-    //ошибка была такая:
-    // Exception 'yii\base\UnknownMethodException' with message 'Calling unknown method: yii\console\Request::validateCsrfToken()'
-    //in C:\OpenServer\domains\buysell\vendor\yiisoft\yii2\base\Component.php:300
+    //через консоль выполнить это действие не удалось, ошибка:
+    // 'Calling unknown method: yii\console\Request::validateCsrfToken()'
 
     /**
      * Метод создания ролей модератора и простого пользователя
@@ -56,7 +53,8 @@ class RbacController extends \yii\web\Controller
     /*
     Для того чтобы проверить, может ли пользователь отредактировать пост, нам надо передать
     дополнительный параметр, необходимый для правила AuthorRule, описанного ранее:
-        if (\Yii::$app->user->can('editAllTickets', ['autor_id' => $model->id])) {
+        if (\Yii::$app->user->can('editAllTickets', ['autor_id' => $model->id]))
+        {
             // edit ticket
         }
     Мы начинаем с editAllTickets и переходим к editOwnTicket. Для того чтобы это произошло,
@@ -65,9 +63,9 @@ class RbacController extends \yii\web\Controller
     */
         $auth->addChild($editOwnTicket, $editAllTickets);
 
-        // Назначение ролей пользователям. 1 и 2 это IDs возвращаемые IdentityInterface::getId()
-        // обычно реализуемый в модели User.
-        $auth->assign($user, 2);
+        /*
+        Назначение ролей пользователям. 1 это ID возвращаемое IdentityInterface::getId()
         $auth->assign($moderator, 1);
+        */
     }
 }

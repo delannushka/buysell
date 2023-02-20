@@ -19,7 +19,7 @@ use yii\helpers\Url;
             <p><?=$comment->text; ?></p>
         </div>
         <?php if (Yii::$app->request->url === '/my/comments'): ?>
-            <?=Html::a('Удалить', Url::to(['my/commentout/'. $comment->id]), ['class'=>'comment-card__delete js-delete']); ?>
+            <?=Html::a('Удалить', Url::to(['my/comment-delete/'. $comment->id]), ['class'=>'comment-card__delete js-delete']); ?>
         <?php endif; ?>
     </div>
 </li>

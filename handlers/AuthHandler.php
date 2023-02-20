@@ -1,6 +1,6 @@
 <?php
 
-namespace delta;
+namespace app\handlers;
 
 use app\models\Auth;
 use app\models\User;
@@ -89,6 +89,7 @@ class AuthHandler
                 }
             }
         } catch (Exception $e) {
+            Yii::$app->errorHandler->logException($e);
             $transaction->rollback();
             throw new ServerErrorHttpException('Не удалось сохранить данные');
         }

@@ -3,7 +3,7 @@
 namespace app\controllers;
 
 use app\models\forms\LoginForm;
-use delta\AuthHandler;
+use app\handlers\AuthHandler;
 use Exception;
 use Yii;
 use yii\filters\AccessControl;

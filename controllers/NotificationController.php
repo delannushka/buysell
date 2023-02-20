@@ -2,8 +2,8 @@
 
 namespace app\controllers;
 
-use delta\FirebaseHandler;
-use delta\NotificationHandler;
+use app\handlers\FirebaseHandler;
+use app\handlers\NotificationHandler;
 use Kreait\Firebase\Exception\DatabaseException;
 use Symfony\Component\Mailer\Exception\TransportExceptionInterface;
 use yii\filters\AccessControl;

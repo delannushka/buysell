@@ -8,7 +8,7 @@ use app\models\forms\ChatForm;
 use app\models\forms\CommentForm;
 use app\models\forms\TicketForm;
 use app\models\Ticket;
-use delta\FirebaseHandler;
+use app\handlers\FirebaseHandler;
 use Exception;
 use Kreait\Firebase\Exception\FirebaseException;
 use Yii;
@@ -79,7 +79,7 @@ class OffersController extends Controller
             try {
                 $database = new FirebaseHandler($id, $buyerId);
                 $messages = $database->drawMessagesForBuyer();
-            } catch (FirebaseException) {
+            } catch (FirebaseException $e) {
                 echo 'Сервис переписки с продавцом временно не работает! ';
             }
         }

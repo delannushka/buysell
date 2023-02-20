@@ -3,7 +3,7 @@
 /** @var Ticket $model */
 
 use app\models\Ticket;
-use delta\TicketHandler;
+use app\handlers\TicketHandler;
 use yii\helpers\Html;
 use yii\helpers\Url;
 ?>

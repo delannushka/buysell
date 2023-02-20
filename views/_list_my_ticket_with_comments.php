@@ -4,7 +4,7 @@
 
 use app\models\Ticket;
 use app\widgets\CommentWidget;
-use delta\TicketHandler;
+use app\handlers\TicketHandler;
 use yii\helpers\Url;
 
 ?>

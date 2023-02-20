@@ -1,6 +1,6 @@
 <?php
 
-namespace delta;
+namespace app\handlers;
 
 use app\models\Ticket;
 use Kreait\Firebase\Contract\Database;

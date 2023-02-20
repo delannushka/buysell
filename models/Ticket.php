@@ -132,6 +132,7 @@ class Ticket extends ActiveRecord
             $this->save();
             $transaction->commit();
         } catch (Exception $e){
+            Yii::$app->errorHandler->logException($e);
             $transaction->rollback();
             throw new ServerErrorHttpException('Проблема на сервере. Объявление удалить не удалось.');
         }

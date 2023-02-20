@@ -3,9 +3,9 @@
 namespace app\models\forms;
 
 use app\models\TicketCategory;
-use delta\TicketHandler;
+use app\handlers\TicketHandler;
 use app\models\Ticket;
-use delta\UploadFile;
+use app\handlers\UploadFile;
 use Yii;
 use yii\base\Model;
 use yii\db\Exception;
@@ -84,6 +84,7 @@ class TicketForm extends Model
                 TicketCategory::saveTicketCategory($this->categories, $ticket);
                 $transaction->commit();
             } catch (Exception $e) {
+                Yii::$app->errorHandler->logException($e);
                 $transaction->rollback();
                 throw new ServerErrorHttpException('Проблема на сервере. Создать объявление не удалось.');
             }
@@ -132,6 +133,7 @@ class TicketForm extends Model
                 TicketCategory::saveTicketCategory($this->categories, $ticket);
                 $transaction->commit();
             } catch (Exception $e) {
+                Yii::$app->errorHandler->logException($e);
                 $transaction->rollback();
                 throw new ServerErrorHttpException('Проблема на сервере. Отредактировать объявление не удалось.');
             }

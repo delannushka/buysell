@@ -1,6 +1,6 @@
 <?php
 
-namespace delta;
+namespace app\handlers;
 
 use app\models\User;
 use Symfony\Component\Mailer\Exception\TransportExceptionInterface;

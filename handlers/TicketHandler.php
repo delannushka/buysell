@@ -1,6 +1,6 @@
 <?php
 
-namespace delta;
+namespace app\handlers;
 
 class TicketHandler
 {

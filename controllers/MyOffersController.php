@@ -13,9 +13,8 @@ use yii\web\NotFoundHttpException;
 use yii\web\Response;
 use yii\web\ServerErrorHttpException;
 
-class MyController extends Controller
+class MyOffersController extends Controller
 {
-
     public function behaviors()
     {
         return [
@@ -100,7 +99,7 @@ class MyController extends Controller
      * @throws ServerErrorHttpException
      * @throws NotFoundHttpException
      */
-    public function actionCommentout(int $id): Response
+    public function actionCommentDelete(int $id): Response
     {
         $comment = Comment::findOne($id);
         if (!$comment || $comment->status === 0){

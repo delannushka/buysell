@@ -3,7 +3,7 @@
 namespace app\models\forms;
 
 use app\models\User;
-use delta\UploadFile;
+use app\handlers\UploadFile;
 use Yii;
 use yii\base\Exception;
 use yii\base\Model;
@@ -68,6 +68,7 @@ class RegisterForm extends Model
             $auth->assign($authorRole, $user->id);
             $transaction->commit();
         } catch (Exception $e){
+            Yii::$app->errorHandler->logException($e);
             $transaction->rollback();
             throw new ServerErrorHttpException('Проблема на сервере. Зарегистрироваться не удалось.');
         }
