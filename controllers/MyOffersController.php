@@ -38,12 +38,13 @@ class MyOffersController extends Controller
      */
     public function actionIndex(): string
     {
-        $id = Yii::$app->user->id;
+        $id                = Yii::$app->user->id;
         $myTicketsProvider = new ActiveDataProvider([
-            'query' => Ticket::getMyTickets($id)
+            'query' => Ticket::getMyTickets($id),
         ]);
+
         return $this->render('index', [
-            'myTicketsProvider' => $myTicketsProvider
+            'myTicketsProvider' => $myTicketsProvider,
         ]);
     }
 
@@ -54,19 +55,21 @@ class MyOffersController extends Controller
      */
     public function actionComments(): string
     {
-        $userId = Yii::$app->user->id;
+        $userId         = Yii::$app->user->id;
         $ticketProvider = new ActiveDataProvider([
-            'query' => Ticket::getMyTicketsWithComments($userId)
+            'query' => Ticket::getMyTicketsWithComments($userId),
         ]);
+
         return $this->render('comments', [
-            'ticketProvider' => $ticketProvider
+            'ticketProvider' => $ticketProvider,
         ]);
     }
 
     /**
      * Удаление выбранного объявления
      *
-     * @param int $id - id объявления
+     * @param  int  $id  - id объявления
+     *
      * @return Response - код страницы
      * @throws ForbiddenHttpException
      * @throws ServerErrorHttpException
@@ -75,25 +78,27 @@ class MyOffersController extends Controller
     public function actionDelete(int $id): Response
     {
         $ticket = Ticket::findOne($id);
-        if (!$ticket || $ticket->status === 0){
+        if ( ! $ticket || $ticket->status === 0) {
             throw new NotFoundHttpException ('Объявление не найдено');
         }
-
-        if (Yii::$app->user->can('editAllTickets', ['author_id' => $ticket->user_id])) {
-            if ($ticket->deleteTicket()) {
-                return $this->redirect('/my');
-            } else {
-                throw new ServerErrorHttpException ('Ошибка сервера', 500);
-            }
-        } else {
-            throw new ForbiddenHttpException ('Вам нельзя выполнять данной действие', 403);
+        if ( ! Yii::$app->user->can('editAllTickets',
+            ['author_id' => $ticket->user_id])
+        ) {
+            throw new ForbiddenHttpException ('Вам нельзя выполнять данной действие',
+                403);
         }
+        if ( ! $ticket->deleteTicket()) {
+            throw new ServerErrorHttpException ('Ошибка сервера', 500);
+        }
+
+        return $this->redirect('/my');
     }
 
     /**
      * Удаление выбранного комментария
      *
-     * @param int $id - id комментария
+     * @param  int  $id  - id комментария
+     *
      * @return Response - код страницы
      * @throws ForbiddenHttpException
      * @throws ServerErrorHttpException
@@ -102,18 +107,19 @@ class MyOffersController extends Controller
     public function actionCommentDelete(int $id): Response
     {
         $comment = Comment::findOne($id);
-        if (!$comment || $comment->status === 0){
+        if ( ! $comment || $comment->status === 0) {
             throw new NotFoundHttpException ('Объявление не найдено');
         }
-
-        if (Yii::$app->user->can('editAllTickets', ['author_id' => $comment->ticket->user_id])) {
-            if ($comment->deleteComment()) {
-                return $this->redirect('/my/comments');
-            } else {
-                throw new ServerErrorHttpException ('Ошибка сервера', 500);
-            }
-        } else {
-            throw new ForbiddenHttpException ('Вам нельзя выполнять данное действие', 403);
+        if ( ! Yii::$app->user->can('editAllTickets',
+            ['author_id' => $comment->ticket->user_id])
+        ) {
+            throw new ForbiddenHttpException ('Вам нельзя выполнять данное действие',
+                403);
         }
+        if ( ! $comment->deleteComment()) {
+            throw new ServerErrorHttpException ('Ошибка сервера', 500);
+        }
+
+        return $this->redirect('/my/comments');
     }
 }

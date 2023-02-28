@@ -22,21 +22,29 @@ class RegisterForm extends Model
     public function attributeLabels(): array
     {
         return [
-            'name' => 'Имя и Фамилия',
-            'email' => 'Эл.почта',
-            'password' => 'Пароль',
+            'name'           => 'Имя и Фамилия',
+            'email'          => 'Эл.почта',
+            'password'       => 'Пароль',
             'repeatPassword' => 'Пароль еще раз',
-            'avatar' => 'Аватар',
+            'avatar'         => 'Аватар',
         ];
     }
 
     public function rules(): array
     {
         return [
-            [['name', 'email', 'password', 'repeatPassword', 'avatar'], 'required'],
+            [
+                ['name', 'email', 'password', 'repeatPassword', 'avatar'],
+                'required',
+            ],
             [['name'], 'string'],
             ['email', 'email'],
-            ['email', 'unique', 'targetClass' => User::class, 'message' => 'Пользователь с данным Email уже существует'],
+            [
+                'email',
+                'unique',
+                'targetClass' => User::class,
+                'message'     => 'Пользователь с данным Email уже существует',
+            ],
             ['password', 'string', 'min' => 6, 'max' => 64],
             ['repeatPassword', 'compare', 'compareAttribute' => 'password'],
             [['avatar'], 'file', 'extensions' => 'png, jpg'],
@@ -51,28 +59,29 @@ class RegisterForm extends Model
      * @throws ServerErrorHttpException
      */
     public function createNewUser(): void
-{
-    $user = new User();
-    $user->name = $this->name;
-    $user->email = $this->email;
-    $user->password = Yii::$app->getSecurity()->generatePasswordHash($this->password);
-    $user->avatar = UploadFile::upload($this->avatar, 'avatar');
-    if ($user->validate()){
-        $db = Yii::$app->db;
-        $transaction = $db->beginTransaction();
-        try {
-            $user->save();
-            //по умолчанию пользователь становится обладателем роли user
-            $auth = Yii::$app->authManager;
-            $authorRole = $auth->getRole('user');
-            $auth->assign($authorRole, $user->id);
-            $transaction->commit();
-        } catch (Exception $e){
-            Yii::$app->errorHandler->logException($e);
-            $transaction->rollback();
-            throw new ServerErrorHttpException('Проблема на сервере. Зарегистрироваться не удалось.');
+    {
+        $user           = new User();
+        $user->name     = $this->name;
+        $user->email    = $this->email;
+        $user->password = Yii::$app->getSecurity()
+            ->generatePasswordHash($this->password);
+        $user->avatar   = UploadFile::upload($this->avatar, 'avatar');
+        if ($user->validate()) {
+            $db          = Yii::$app->db;
+            $transaction = $db->beginTransaction();
+            try {
+                $user->save();
+                //по умолчанию пользователь становится обладателем роли user
+                $auth       = Yii::$app->authManager;
+                $authorRole = $auth->getRole('user');
+                $auth->assign($authorRole, $user->id);
+                $transaction->commit();
+            } catch (Exception $e) {
+                Yii::$app->errorHandler->logException($e);
+                $transaction->rollback();
+                throw new ServerErrorHttpException('Проблема на сервере. Зарегистрироваться не удалось.');
+            }
         }
     }
-}
 
 }

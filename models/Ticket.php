@@ -12,20 +12,20 @@ use yii\web\ServerErrorHttpException;
 /**
  * This is the model class for table "ticket".
  *
- * @property int $id
- * @property int $status
- * @property int $user_id
- * @property string $header
- * @property string $photo
- * @property int $price
- * @property string $type
- * @property string $text
- * @property int|null $date_add
+ * @property int              $id
+ * @property int              $status
+ * @property int              $user_id
+ * @property string           $header
+ * @property string           $photo
+ * @property int              $price
+ * @property string           $type
+ * @property string           $text
+ * @property int|null         $date_add
  *
- * @property Category[] $categories
- * @property Comment[] $comments
+ * @property Category[]       $categories
+ * @property Comment[]        $comments
  * @property TicketCategory[] $ticketCategories
- * @property User $user
+ * @property User             $user
  */
 class Ticket extends ActiveRecord
 {
@@ -44,13 +44,22 @@ class Ticket extends ActiveRecord
     {
         return [
             [['status', 'user_id', 'price'], 'integer'],
-            [['user_id', 'header', 'price', 'type', 'text', 'photo'], 'required'],
+            [
+                ['user_id', 'header', 'price', 'type', 'text', 'photo'],
+                'required',
+            ],
             [['type'], 'string'],
             [['date_add'], 'safe'],
             [['header'], 'string', 'max' => 100],
             [['photo'], 'string', 'max' => 255],
             [['text'], 'string', 'max' => 1000],
-            [['user_id'], 'exist', 'skipOnError' => true, 'targetClass' => User::class, 'targetAttribute' => ['user_id' => 'id']],
+            [
+                ['user_id'],
+                'exist',
+                'skipOnError'     => true,
+                'targetClass'     => User::class,
+                'targetAttribute' => ['user_id' => 'id'],
+            ],
         ];
     }
 
@@ -60,14 +69,14 @@ class Ticket extends ActiveRecord
     public function attributeLabels(): array
     {
         return [
-            'id' => 'ID',
-            'status' => 'Status',
-            'user_id' => 'User ID',
-            'header' => 'Header',
-            'photo' => 'Photo',
-            'price' => 'Price',
-            'type' => 'Type',
-            'text' => 'Text',
+            'id'       => 'ID',
+            'status'   => 'Status',
+            'user_id'  => 'User ID',
+            'header'   => 'Header',
+            'photo'    => 'Photo',
+            'price'    => 'Price',
+            'type'     => 'Type',
+            'text'     => 'Text',
             'date_add' => 'Date Add',
         ];
     }
@@ -80,7 +89,8 @@ class Ticket extends ActiveRecord
      */
     public function getCategories(): ActiveQuery
     {
-        return $this->hasMany(Category::class, ['id' => 'category_id'])->viaTable('ticket_category', ['ticket_id' => 'id']);
+        return $this->hasMany(Category::class, ['id' => 'category_id'])
+            ->viaTable('ticket_category', ['ticket_id' => 'id']);
     }
 
     /**
@@ -121,21 +131,22 @@ class Ticket extends ActiveRecord
      */
     public function deleteTicket(): bool
     {
-        $db = Yii::$app->db;
+        $db          = Yii::$app->db;
         $transaction = $db->beginTransaction();
         try {
             $this->status = 0;
-            $comments = $this->comments;
+            $comments     = $this->comments;
             foreach ($comments as $comment) {
                 $comment->deleteComment();
             }
             $this->save();
             $transaction->commit();
-        } catch (Exception $e){
+        } catch (Exception $e) {
             Yii::$app->errorHandler->logException($e);
             $transaction->rollback();
             throw new ServerErrorHttpException('Проблема на сервере. Объявление удалить не удалось.');
         }
+
         return true;
     }
 
@@ -167,7 +178,8 @@ class Ticket extends ActiveRecord
     /**
      * Метод получения объявлений заданной категории
      *
-     * @param int $categoryId - id категории
+     * @param  int  $categoryId  - id категории
+     *
      * @return ActiveQuery объявления, в пордяке от самого нового
      */
     public static function getTicketsInCategory(int $categoryId): ActiveQuery
@@ -175,15 +187,18 @@ class Ticket extends ActiveRecord
         return
             Ticket::find()
                 ->select('id, status, header, photo, price, type, text, ticket_category.category_id as category_id')
-                ->leftJoin('ticket_category', 'ticket_category.ticket_id = ticket.id')
-                ->having('ticket.status = 1 and ticket_category.category_id = ' . $categoryId)
+                ->leftJoin('ticket_category',
+                    'ticket_category.ticket_id = ticket.id')
+                ->having('ticket.status = 1 and ticket_category.category_id = '
+                    .$categoryId)
                 ->orderBy('ticket.id DESC');
     }
 
     /**
      * Метод получения объявлений у которых есть комменатрии, автором которых является текущий юзер
      *
-     * @param int $userId - id юзера
+     * @param  int  $userId  - id юзера
+     *
      * @return ActiveQuery объявления, в пордяке от объявления, с самым свежим комментарием
      */
     public static function getMyTicketsWithComments(int $userId): ActiveQuery
@@ -193,8 +208,9 @@ class Ticket extends ActiveRecord
                 ->leftJoin('comment', 'comment.ticket_id = ticket.id')
                 ->where([
                     'ticket.user_id' => $userId,
-                    'ticket.status' => 1,
-                    'comment.status' => 1])
+                    'ticket.status'  => 1,
+                    'comment.status' => 1,
+                ])
                 ->groupBy('ticket.id')
                 ->having('COUNT(comment.id) > 0')
                 ->orderBy('MAX(comment.id) DESC');
@@ -203,7 +219,8 @@ class Ticket extends ActiveRecord
     /**
      * Метод получения объявлений, автором которых является текущий юзер
      *
-     * @param int $userId - id юзера
+     * @param  int  $userId  - id юзера
+     *
      * @return ActiveQuery объявления, в пордяке от объявления, с самым свежим комментарием
      */
     public static function getMyTickets(int $userId): ActiveQuery
@@ -212,7 +229,7 @@ class Ticket extends ActiveRecord
             Ticket::find()
                 ->where([
                     'user_id' => $userId,
-                    'status' => 1
+                    'status'  => 1,
                 ])
                 ->orderBy('id DESC');
     }

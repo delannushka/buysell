@@ -20,15 +20,15 @@ class NotificationController extends Controller
         return [
             'access' => [
                 'class' => AccessControl::class,
-                'only' => ['index'],
+                'only'  => ['index'],
                 'rules' => [
                     [
-                        'allow' => true,
+                        'allow'   => true,
                         'actions' => ['index'],
-                        'roles' => ['moderator'],
+                        'roles'   => ['moderator'],
                     ],
-                ]
-            ]
+                ],
+            ],
         ];
     }
 
@@ -43,17 +43,19 @@ class NotificationController extends Controller
 
     public function actionIndex(): string
     {
-        $firebase = new FirebaseHandler();
+        $firebase                = new FirebaseHandler();
         $firebaseAllTicketsChats = $firebase->getValue();
 
         $result = [];
-        NotificationHandler::getUnreadMessages($firebaseAllTicketsChats, $result);
+        NotificationHandler::getUnreadMessages($firebaseAllTicketsChats,
+            $result);
 
         $users = NotificationHandler::getUsersForNotification($result);
 
         foreach ($users as $key => $recipientId) {
             NotificationHandler::sendEmail($recipientId);
         }
+
         return $this->render('index');
     }
 }

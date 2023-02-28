@@ -1,4 +1,5 @@
 <?php
+
 namespace app\models\forms;
 
 use app\models\User;
@@ -38,20 +39,24 @@ class LoginForm extends Model
         if ($this->_user === null) {
             $this->_user = User::findOne(['email' => $this->email]);
         }
+
         return $this->_user;
     }
 
     /**
      * Метод валидации пароля при входе пользователя
      *
-     * @param string $attribute - строка из поля 'password' формы входа
+     * @param  string  $attribute  - строка из поля 'password' формы входа
      */
     public function validatePassword(string $attribute)
     {
-        if (!$this->hasErrors()) {
+        if ( ! $this->hasErrors()) {
             $user = $this->getUser();
 
-            if (!$user || !Yii::$app->security->validatePassword($this->password, $user->password)) {
+            if ( ! $user
+                || ! Yii::$app->security->validatePassword($this->password,
+                    $user->password)
+            ) {
                 $this->addError($attribute, 'Неправильный email или пароль');
             }
         }

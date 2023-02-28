@@ -20,7 +20,7 @@ class CommentForm extends Model
     {
         return [
             ['comment', 'required'],
-            ['comment', 'string', 'min' => self::MIN_TEXT]
+            ['comment', 'string', 'min' => self::MIN_TEXT],
         ];
     }
 }

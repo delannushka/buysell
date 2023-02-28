@@ -47,13 +47,15 @@ class SiteController extends Controller
     public function actionIndex(): string
     {
         $freshTicketsProvider = new ActiveDataProvider([
-            'query' => Ticket::getFreshTickets(),
-            'pagination' => ['pageSize' => self::LIMIT_TICKETS] // автоматически будет переписывать лимит на 8
+            'query'      => Ticket::getFreshTickets(),
+            'pagination' => ['pageSize' => self::LIMIT_TICKETS]
+            // автоматически будет переписывать лимит на 8
         ]);
 
         $popularTicketsProvider = new ActiveDataProvider([
-            'query' => Ticket::getPopularTickets(),
-            'pagination' => ['pageSize' => self::LIMIT_TICKETS] // автоматически будет переписывать лимит на 8
+            'query'      => Ticket::getPopularTickets(),
+            'pagination' => ['pageSize' => self::LIMIT_TICKETS]
+            // автоматически будет переписывать лимит на 8
         ]);
 
         $mainCategoriesProvider = new ActiveDataProvider([
@@ -63,7 +65,7 @@ class SiteController extends Controller
         return $this->render('index',
             [
                 'mainCategoriesProvider' => $mainCategoriesProvider,
-                'freshTicketsProvider' => $freshTicketsProvider,
+                'freshTicketsProvider'   => $freshTicketsProvider,
                 'popularTicketsProvider' => $popularTicketsProvider,
             ]
         );
@@ -84,10 +86,10 @@ class SiteController extends Controller
         $moderator = $auth->createRole('moderator');
         $auth->add($moderator);
 
-        $editOwnTicket = $auth->createPermission('editOwnTicket');
+        $editOwnTicket              = $auth->createPermission('editOwnTicket');
         $editOwnTicket->description = 'Edit own ticket';
 
-        $editAllTickets = $auth->createPermission('editAllTickets');
+        $editAllTickets              = $auth->createPermission('editAllTickets');
         $editAllTickets->description = 'Edit all tickets';
 
         $rule = new AuthorRule;

@@ -8,11 +8,11 @@ use yii\db\ActiveRecord;
 /**
  * This is the model class for table "ticket_category".
  *
- * @property int $ticket_id
- * @property int $category_id
+ * @property int      $ticket_id
+ * @property int      $category_id
  *
  * @property Category $category
- * @property Ticket $ticket
+ * @property Ticket   $ticket
  */
 class TicketCategory extends ActiveRecord
 {
@@ -32,9 +32,25 @@ class TicketCategory extends ActiveRecord
         return [
             [['ticket_id', 'category_id'], 'required'],
             [['ticket_id', 'category_id'], 'integer'],
-            [['ticket_id', 'category_id'], 'unique', 'targetAttribute' => ['ticket_id', 'category_id']],
-            [['ticket_id'], 'exist', 'skipOnError' => true, 'targetClass' => Ticket::class, 'targetAttribute' => ['ticket_id' => 'id']],
-            [['category_id'], 'exist', 'skipOnError' => true, 'targetClass' => Category::class, 'targetAttribute' => ['category_id' => 'id']],
+            [
+                ['ticket_id', 'category_id'],
+                'unique',
+                'targetAttribute' => ['ticket_id', 'category_id'],
+            ],
+            [
+                ['ticket_id'],
+                'exist',
+                'skipOnError'     => true,
+                'targetClass'     => Ticket::class,
+                'targetAttribute' => ['ticket_id' => 'id'],
+            ],
+            [
+                ['category_id'],
+                'exist',
+                'skipOnError'     => true,
+                'targetClass'     => Category::class,
+                'targetAttribute' => ['category_id' => 'id'],
+            ],
         ];
     }
 
@@ -44,7 +60,7 @@ class TicketCategory extends ActiveRecord
     public function attributeLabels(): array
     {
         return [
-            'ticket_id' => 'Ticket ID',
+            'ticket_id'   => 'Ticket ID',
             'category_id' => 'Category ID',
         ];
     }
@@ -72,14 +88,16 @@ class TicketCategory extends ActiveRecord
     /**
      * Метод добавления записей в связывающую таблицу TicketCategory
      *
-     * @param array $idCategories - массив id категорий для выбранного объявления
-     * @param Ticket $ticket - Объявление, для которого добавляем эти записи
+     * @param  array   $idCategories  - массив id категорий для выбранного объявления
+     * @param  Ticket  $ticket        - Объявление, для которого добавляем эти записи
      */
-    public static function saveTicketCategory(array $idCategories, Ticket $ticket): void
-    {
+    public static function saveTicketCategory(
+        array $idCategories,
+        Ticket $ticket
+    ): void {
         foreach ($idCategories as $idCategory) {
-            $ticketCategory = new TicketCategory();
-            $ticketCategory->ticket_id = $ticket->id;
+            $ticketCategory              = new TicketCategory();
+            $ticketCategory->ticket_id   = $ticket->id;
             $ticketCategory->category_id = $idCategory;
             $ticketCategory->save();
         }

@@ -19,11 +19,12 @@ class LoginController extends Controller
     {
         return [
             'access' => [
-                'class' => AccessControl::class,
+                'class'        => AccessControl::class,
                 'denyCallback' => function () {
-                    throw new ForbiddenHttpException('Данная страница вам не доступна', 403);
+                    throw new ForbiddenHttpException('Данная страница вам не доступна',
+                        403);
                 },
-                'rules' => [
+                'rules'        => [
                     [
                         'allow'   => true,
                         'actions' => ['index', 'auth', 'vk'],
@@ -53,14 +54,17 @@ class LoginController extends Controller
             $loginForm->load(Yii::$app->request->post());
             if (Yii::$app->request->isAjax) {
                 Yii::$app->response->format = Response::FORMAT_JSON;
+
                 return ActiveForm::validate($loginForm);
             }
             if ($loginForm->validate()) {
                 $user = $loginForm->getUser();
                 Yii::$app->user->login($user);
+
                 return $this->goHome();
             }
         }
+
         return $this->render('index', ['model' => $loginForm]);
     }
 
@@ -69,8 +73,10 @@ class LoginController extends Controller
      */
     public function actionAuth()
     {
-        $url = Yii::$app->authClientCollection->getClient("vkontakte")->buildAuthUrl(); // Build authorization URL
-        Yii::$app->getResponse()->redirect($url); // Redirect to authorization URL.
+        $url = Yii::$app->authClientCollection->getClient("vkontakte")
+            ->buildAuthUrl(); // Build authorization URL
+        Yii::$app->getResponse()
+            ->redirect($url); // Redirect to authorization URL.
     }
 
     /**
@@ -82,10 +88,10 @@ class LoginController extends Controller
     public function actionVk()
     {
         // After user returns at our site:
-        $code = Yii::$app->request->get('code');
+        $code        = Yii::$app->request->get('code');
         $authHandler = new AuthHandler($code);
 
-        if (!$authHandler->isAuthExist()) {
+        if ( ! $authHandler->isAuthExist()) {
             $authHandler->saveAuthUser();
         }
         Yii::$app->user->login($authHandler->getAuth()->user);
@@ -100,6 +106,7 @@ class LoginController extends Controller
     public function actionLogout(): Response
     {
         Yii::$app->user->logout();
+
         return $this->goHome();
     }
 }

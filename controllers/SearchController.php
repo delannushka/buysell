@@ -38,17 +38,19 @@ class SearchController extends Controller
         $query = Yii::$app->request->get('query');
 
         $searchTicketsProvider = new ActiveDataProvider([
-            'query' => Ticket::find()->where("status = 1 and MATCH(header) AGAINST('{$query}')")
+            'query' => Ticket::find()
+                ->where("status = 1 and MATCH(header) AGAINST('{$query}')"),
         ]);
 
         $freshTicketsProvider = new ActiveDataProvider([
-            'query' => Ticket::find()->where(['status' => 1])->orderBy('date_add DESC'),
-            'pagination' => ['pageSize' => self::LIMIT_TICKETS]
+            'query'      => Ticket::find()->where(['status' => 1])
+                ->orderBy('date_add DESC'),
+            'pagination' => ['pageSize' => self::LIMIT_TICKETS],
         ]);
 
         return $this->render('index', [
             'searchTicketsProvider' => $searchTicketsProvider,
-            'freshTicketsProvider' => $freshTicketsProvider
+            'freshTicketsProvider'  => $freshTicketsProvider,
         ]);
     }
 }

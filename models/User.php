@@ -11,15 +11,15 @@ use yii\web\IdentityInterface;
 /**
  * This is the model class for table "user".
  *
- * @property int $id
- * @property string $name
- * @property string $email
- * @property string $password
+ * @property int         $id
+ * @property string      $name
+ * @property string      $email
+ * @property string      $password
  * @property string|null $avatar
  * @property string|null $date_add
- * @property Comment[] $comments
- * @property Ticket[] $tickets
- * @property Auth[] $auths
+ * @property Comment[]   $comments
+ * @property Ticket[]    $tickets
+ * @property Auth[]      $auths
  */
 class User extends ActiveRecord implements IdentityInterface
 {
@@ -45,11 +45,11 @@ class User extends ActiveRecord implements IdentityInterface
         ];
     }
 
-   /**
-    * Gets query for [[Auths]].
-    *
-    * @return ActiveQuery
-    */
+    /**
+     * Gets query for [[Auths]].
+     *
+     * @return ActiveQuery
+     */
     public function getAuths(): ActiveQuery
     {
         return $this->hasMany(Auth::class, ['user_id' => 'id']);
@@ -61,11 +61,11 @@ class User extends ActiveRecord implements IdentityInterface
     public function attributeLabels(): array
     {
         return [
-            'id' => 'ID',
-            'name' => 'Name',
-            'email' => 'Email',
+            'id'       => 'ID',
+            'name'     => 'Name',
+            'email'    => 'Email',
             'password' => 'Password',
-            'avatar' => 'Avatar',
+            'avatar'   => 'Avatar',
             'date_add' => 'Date Add',
         ];
     }
@@ -122,9 +122,9 @@ class User extends ActiveRecord implements IdentityInterface
      */
     public function loadAuthUser($userVk): void
     {
-        $this->email = $userVk['email'];
-        $this->name = $userVk['first_name'] . ' ' . $userVk['last_name'];
-        $this->avatar = $userVk['photo'];
+        $this->email    = $userVk['email'];
+        $this->name     = $userVk['first_name'].' '.$userVk['last_name'];
+        $this->avatar   = $userVk['photo'];
         $this->password = Yii::$app->security->generateRandomString(6);
     }
 }

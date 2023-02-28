@@ -12,38 +12,50 @@ use yii\web\HttpException;
 use yii\web\ServerErrorHttpException;
 
 /**
- * @property array $attributes Массив информации о пользователе
- * @property VKontakte $vk клиент VK
- * @property Auth $auth модель Auth для хранения пользователей авторизованных через VK
- * @param string $code Полученный от VK API код
+ * @param  string      $code       Полученный от VK API код
+ *
+ * @property VKontakte $vk         клиент VK
+ * @property Auth      $auth       модель Auth для хранения пользователей авторизованных через VK
+ * @property array     $attributes Массив информации о пользователе
  */
-
 class AuthHandler
 {
-    public $attributes;
-    public $vk;
-    public $auth;
+    public array $attributes;
+    public VKontakte $vk;
+    public ?Auth $auth;
 
     /**
      * @throws HttpException|Exception
      */
     public function __construct(string $code)
     {
-        $this->vk = Yii::$app->authClientCollection->getClient("vkontakte");
-        $accessToken = $this->vk->fetchAccessToken($code);
-        $this->attributes = $this->vk->getUserAttributes();
-        $this->attributes['email'] = ArrayHelper::getValue($accessToken->params, 'email');
+        $this->vk                  = Yii::$app->authClientCollection->getClient("vkontakte");
+        $accessToken               = $this->vk->fetchAccessToken($code);
+        $this->attributes          = $this->vk->getUserAttributes();
+        $this->attributes['email'] = ArrayHelper::getValue($accessToken->params,
+            'email');
     }
 
+    /**
+     * Метод нахождения юзера в таблице User, если не найдено - возвращает модель User
+     *
+     * @return User
+     */
     public function getUser(): User
     {
         $user = User::findOne(['email' => $this->attributes['email']]);
         if ($user) {
             return $user;
         }
+
         return new User();
     }
 
+    /**
+     * Метод, возваращающий пользователя из таблицы Auth
+     *
+     * @return Auth
+     */
     public function getAuth(): Auth
     {
         return $this->auth;
@@ -57,13 +69,14 @@ class AuthHandler
     public function isAuthExist(): bool
     {
         $this->auth = Auth::find()->where([
-            'source' => $this->vk->getId(),
+            'source'    => $this->vk->getId(),
             'source_id' => $this->attributes['id'],
         ])->one();
 
         if ($this->auth) {
             return true;
         }
+
         return false;
     }
 
@@ -80,8 +93,8 @@ class AuthHandler
         try {
             if ($user->save()) {
                 $this->auth = new Auth([
-                    'user_id' => $user->id,
-                    'source' => $this->vk->getId(),
+                    'user_id'   => $user->id,
+                    'source'    => $this->vk->getId(),
                     'source_id' => (string)$this->attributes['id'],
                 ]);
                 if ($this->auth->save()) {

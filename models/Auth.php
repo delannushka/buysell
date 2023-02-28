@@ -8,12 +8,12 @@ use yii\db\ActiveRecord;
 /**
  * This is the model class for table "auth".
  *
- * @property int $id
- * @property int $user_id
+ * @property int    $id
+ * @property int    $user_id
  * @property string $source
  * @property string $source_id
  *
- * @property User $user
+ * @property User   $user
  */
 class Auth extends ActiveRecord
 {
@@ -34,7 +34,13 @@ class Auth extends ActiveRecord
             [['user_id', 'source', 'source_id'], 'required'],
             [['user_id'], 'integer'],
             [['source', 'source_id'], 'string', 'max' => 255],
-            [['user_id'], 'exist', 'skipOnError' => true, 'targetClass' => User::class, 'targetAttribute' => ['user_id' => 'id']],
+            [
+                ['user_id'],
+                'exist',
+                'skipOnError'     => true,
+                'targetClass'     => User::class,
+                'targetAttribute' => ['user_id' => 'id'],
+            ],
         ];
     }
 
@@ -44,9 +50,9 @@ class Auth extends ActiveRecord
     public function attributeLabels(): array
     {
         return [
-            'id' => 'ID',
-            'user_id' => 'User ID',
-            'source' => 'Source',
+            'id'        => 'ID',
+            'user_id'   => 'User ID',
+            'source'    => 'Source',
             'source_id' => 'Source ID',
         ];
     }

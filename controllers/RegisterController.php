@@ -18,11 +18,12 @@ class RegisterController extends Controller
     {
         return [
             'access' => [
-                'class' => AccessControl::class,
+                'class'        => AccessControl::class,
                 'denyCallback' => function () {
-                    throw new ForbiddenHttpException('Вы уже на сайте. Регистрироваться заново не нужно.', 403);
+                    throw new ForbiddenHttpException('Вы уже на сайте. Регистрироваться заново не нужно.',
+                        403);
                 },
-                'rules' => [
+                'rules'        => [
                     [
                         'allow'   => true,
                         'actions' => ['index'],
@@ -45,12 +46,15 @@ class RegisterController extends Controller
         $registerForm = new RegisterForm();
         if (Yii::$app->request->getIsPost()) {
             $registerForm->load(Yii::$app->request->post());
-            $registerForm->avatar = UploadedFile::getInstance($registerForm, 'avatar');
+            $registerForm->avatar = UploadedFile::getInstance($registerForm,
+                'avatar');
             if ($registerForm->validate()) {
                 $registerForm->createNewUser();
+
                 return Yii::$app->response->redirect('/login');
             }
         }
-        return $this->render('index', ['model'=> $registerForm]);
+
+        return $this->render('index', ['model' => $registerForm]);
     }
 }

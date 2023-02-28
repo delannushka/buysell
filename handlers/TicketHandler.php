@@ -7,6 +7,12 @@ class TicketHandler
     const TICKET_BUY = 'buy';
     const TICKET_SELL = 'sell';
 
+    const TICKET_LABELS
+        = [
+            self::TICKET_BUY  => 'Куплю',
+            self::TICKET_SELL => 'Продам',
+        ];
+
     /**
      * Карта типов объявлений
      *
@@ -15,23 +21,20 @@ class TicketHandler
     public static function getTypeMap(): array
     {
         return [
-            self::TICKET_BUY => 'Куплю',
-            self::TICKET_SELL => 'Продам'
+            self::TICKET_BUY  => 'Куплю',
+            self::TICKET_SELL => 'Продам',
         ];
     }
 
     /**
      * Метод полуения типа объвления на русском языке
      *
-     * @param string $type тип объявления
+     * @param  string  $type  тип объявления
+     *
      * @return string
      */
     public static function getLabel(string $type): string
     {
-        if ($type === self::TICKET_BUY) {
-            return 'Куплю';
-        } else {
-            return 'Продам';
-        }
+        return self::TICKET_LABELS[$type];
     }
 }
